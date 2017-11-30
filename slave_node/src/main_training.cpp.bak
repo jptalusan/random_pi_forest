@@ -1,0 +1,134 @@
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <string>
+#include <unistd.h>
+#include "include/SCP_utils.hpp"
+
+#include "include/rts_forest.hpp"
+
+int main(int argc, char *argv[]){
+
+	//
+	// サンプルデータの読み込み
+	//
+	std::string path = "/home/pi/RandomForest_for_smart_home_data";
+	char dir[255];
+	getcwd(dir,255);
+	std::cout << dir << std::endl;
+	std::vector<RTs::Sample> samples;
+
+/*
+	std::cout << "0_Read_sample_data" << std::endl;
+	for(int i=0; i<1; ++i){
+		std::stringstream ss;
+		//ss << dir << "/smart_home_data/Class" << i+1 << ".txt";
+		//ss << dir << "/data/data.txt";
+		ss << path << "/data/data.txt";
+		std::cout << ss.str() << std::endl;
+		//std::cout << ss.str().c_str() << std::endl;
+
+		//std::ifstream ifs(ss.str().c_str());
+
+		std::ifstream ifs(ss.str());
+
+
+		if (ifs.fail())
+		    {
+		        std::cerr << "Fail" << std::endl;
+		        return -1;
+		    }
+		std::cerr << "Success" << std::endl;
+
+		float x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25;
+		//printf("x=%d, y=%d     :\n", x, y);
+
+		while(!ifs.eof()){
+			ifs >> x0>> x1>> x2>> x3>> x4>> x5>> x6>> x7>> x8>> x9>> x10>> x11>> x12>> x13>> x14>> x15>> x16>> x17>> x18>> x19>> x20>> x21>> x22>> x23>> x24 >> x25;
+
+			if(ifs.fail()){
+				std::cout << "	ifs.fail()" << std::endl;
+				break;
+			}
+			std::cout << "label = " << x25 << " X0=" << x0 << ", X1=" << x1 << " X2=" << x2 <<" X3=" << x3 << " ... X24=" << x24 <<std::endl;
+
+			std::cout.flush();
+
+			RTs::Sample sample;
+			sample.label = x25; //Changed
+			sample.feature_vec.resize(25);
+			sample.feature_vec[0] = x0;
+			sample.feature_vec[1] = x1;
+			sample.feature_vec[2] = x2;
+			sample.feature_vec[3] = x3;
+			sample.feature_vec[4] = x4;
+			sample.feature_vec[5] = x5;
+			sample.feature_vec[6] = x6;
+			sample.feature_vec[7] = x7;
+			sample.feature_vec[8] = x8;
+			sample.feature_vec[9] = x9;
+			sample.feature_vec[10] = x10;
+			sample.feature_vec[11] = x11;
+			sample.feature_vec[12] = x12;
+			sample.feature_vec[13] = x13;
+			sample.feature_vec[14] = x14;
+			sample.feature_vec[15] = x15;
+			sample.feature_vec[16] = x16;
+			sample.feature_vec[17] = x17;
+			sample.feature_vec[18] = x18;
+			sample.feature_vec[19] = x19;
+			sample.feature_vec[20] = x20;
+			sample.feature_vec[21] = x21;
+			sample.feature_vec[22] = x22;
+			sample.feature_vec[23] = x23;
+			sample.feature_vec[24] = x24;
+
+			//printf("x=%d, y=%d", x, y);
+			samples.push_back(sample);
+		}
+	}
+
+	std::cout << "Sample size: " << samples.size() << std::endl;
+	std::cout << std::endl;
+	std::cout.flush();
+*/
+
+	Utils::Parser *p = new Utils::Parser();
+	p->setClassColumn(1);
+	samples = p->readCSVToSamples("data.txt");
+	//
+	// Randomized Forest 生成
+	//
+	//  numClass = 10  //学習に用いるクラス
+	//  numTrees = 5 //木の数
+	//  maxDepth = 10 //木の深さ
+	//  featureTrials = 50 //分岐ノード候補の数
+	//  thresholdTrials = 5  //分岐ノード閾値検索の候補の数
+	//  dataPerTree = .25f  //サブセットに分けるデータの割合
+	//
+
+	std::cout << "1_Randomized Forest generation" << std::endl;
+	RTs::Forest rts_forest;
+	if(!rts_forest.Learn(10, 5, 10, 50, 5, 1.0f, samples)){
+		printf("Randomized Forest Failed generation\n");
+		std::cerr << "RTs::Forest::Learn() failed." << std::endl;
+		std::cerr.flush();
+		return 1;
+	}
+
+	//
+	// 学習結果の保存
+	//
+
+	std::cout << "2_Saving the learning result" << std::endl;
+	std::stringstream ss2;
+	ss2 << path << "/RTs_Forest.txt";
+	if(rts_forest.Save(ss2.str()) == false){
+		std::cerr << "RTs::Forest::Save() failed." << std::endl;
+		std::cerr.flush();
+		return 1;
+	}
+
+	return 0;
+}

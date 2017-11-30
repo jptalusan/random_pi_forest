@@ -1,0 +1,1 @@
+/usr/bin/c++    -std=c++11 -Wall -Wextra -pedantic   CMakeFiles/../rf_exe.dir/main_training.cpp.o CMakeFiles/../rf_exe.dir/rts_forest.cpp.o CMakeFiles/../rf_exe.dir/rts_tree.cpp.o  -o ../rf_exe -rdynamic 
