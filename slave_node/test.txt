@@ -1,0 +1,1472 @@
+/home/pi/random_pi_forest/slave_node
+1./src/rf_exe
+25
+2
+1_Randomized Forest generation
+＊Forest::Learn関数：教師信号による Randomized Forest を生成する関数:1＊
+	10_ラベルの頻度の逆数を生成 (ヒストグラムの重み付けに使う)
+0 0 0 0 0 0 0 0 0 0 	クラス数10
+1 6 13 0 8 11 0 0 0 0 
+1 0.166667 0.0769231 0 0.125 0.0909091 0 0 0 0 
+	11_Tree が受け付けるのは Sample * の vector なので，ポインタの vector を生成
+	12_決定木を新たに作成する
+	13_この決定木のためのサブセット学習データを生成
+39.5
+39
+39
+	14_サブセットを使って決定木を学習させる
+		Tree::BuildTree関数:指定されたパラメータで学習データから決定木構造を生成する関数:10
+		build関数へ．
+		*Tree::build:再帰処理で Node の階層を生成する関数．:1
+		140_特徴量の次元数．ちょっとダサいが，サンプル中の特徴量の次元数を参照する
+		特徴量の次元数=25
+		Since the maximum value and the minimum value of each dimension of the feature quantity are necessary in the threshold value random generation after 141 _, it is obtained here first
+		142_情報利得を最大化する分割結果を探索する
+		143_分岐につかう特徴量の次元をランダムに決定
+145_[1/50]gain = -1.96864
+145_[2/50]gain = -1.75763
+145_[3/50]gain = -1.19011
+145_[4/50]gain = -1.19011
+145_[5/50]gain = -0.972681
+145_[6/50]gain = -0.972681
+145_[7/50]gain = -0.972681
+145_[8/50]gain = -0.972681
+145_[9/50]gain = -0.972681
+145_[10/50]gain = -0.972681
+145_[11/50]gain = -0.972681
+145_[12/50]gain = -0.972681
+145_[13/50]gain = -0.972681
+145_[14/50]gain = -0.972681
+145_[15/50]gain = -0.972681
+145_[16/50]gain = -0.972681
+145_[17/50]gain = -0.972681
+145_[18/50]gain = -0.969283
+145_[19/50]gain = -0.969283
+145_[20/50]gain = -0.969283
+145_[21/50]gain = -0.969283
+145_[22/50]gain = -0.969283
+145_[23/50]gain = -0.969283
+145_[24/50]gain = -0.969283
+145_[25/50]gain = -0.969283
+145_[26/50]gain = -0.969283
+145_[27/50]gain = -0.969283
+145_[28/50]gain = -0.969283
+145_[29/50]gain = -0.969283
+145_[30/50]gain = -0.969283
+145_[31/50]gain = -0.969283
+145_[32/50]gain = -0.969283
+145_[33/50]gain = -0.969283
+145_[34/50]gain = -0.969283
+145_[35/50]gain = -0.969283
+145_[36/50]gain = -0.969283
+145_[37/50]gain = -0.969283
+145_[38/50]gain = -0.969283
+145_[39/50]gain = -0.969283
+145_[40/50]gain = -0.969283
+145_[41/50]gain = -0.969283
+145_[42/50]gain = -0.969283
+145_[43/50]gain = -0.969283
+145_[44/50]gain = -0.969283
+145_[45/50]gain = -0.969283
+145_[46/50]gain = -0.969283
+145_[47/50]gain = -0.969283
+145_[48/50]gain = -0.969283
+145_[49/50]gain = -0.969283
+145_[50/50]gain = -0.969283
+
+		146_Save best parameters to node
+		147 _ Check if it reached the terminal node this time
+		149_まだ分岐ノードなので，子ノードを生成する
+		*Tree::build:再帰処理で Node の階層を生成する関数．:1
+		140_特徴量の次元数．ちょっとダサいが，サンプル中の特徴量の次元数を参照する
+		特徴量の次元数=25
+		Since the maximum value and the minimum value of each dimension of the feature quantity are necessary in the threshold value random generation after 141 _, it is obtained here first
+		142_情報利得を最大化する分割結果を探索する
+		143_分岐につかう特徴量の次元をランダムに決定
+145_[1/50]gain = -0.772408
+145_[2/50]gain = -0.772408
+145_[3/50]gain = 0
+145_[4/50]gain = 0
+145_[5/50]gain = 0
+145_[6/50]gain = 0
+145_[7/50]gain = 0
+145_[8/50]gain = 0
+145_[9/50]gain = 0
+145_[10/50]gain = 0
+145_[11/50]gain = 0
+145_[12/50]gain = 0
+145_[13/50]gain = 0
+145_[14/50]gain = 0
+145_[15/50]gain = 0
+145_[16/50]gain = 0
+145_[17/50]gain = 0
+145_[18/50]gain = 0
+145_[19/50]gain = 0
+145_[20/50]gain = 0
+145_[21/50]gain = 0
+145_[22/50]gain = 0
+145_[23/50]gain = 0
+145_[24/50]gain = 0
+145_[25/50]gain = 0
+145_[26/50]gain = 0
+145_[27/50]gain = 0
+145_[28/50]gain = 0
+145_[29/50]gain = 0
+145_[30/50]gain = 0
+145_[31/50]gain = 0
+145_[32/50]gain = 0
+145_[33/50]gain = 0
+145_[34/50]gain = 0
+145_[35/50]gain = 0
+145_[36/50]gain = 0
+145_[37/50]gain = 0
+145_[38/50]gain = 0
+145_[39/50]gain = 0
+145_[40/50]gain = 0
+145_[41/50]gain = 0
+145_[42/50]gain = 0
+145_[43/50]gain = 0
+145_[44/50]gain = 0
+145_[45/50]gain = 0
+145_[46/50]gain = 0
+145_[47/50]gain = 0
+145_[48/50]gain = 0
+145_[49/50]gain = 0
+145_[50/50]gain = 0
+
+		146_Save best parameters to node
+		147 _ Check if it reached the terminal node this time
+		148_Since it reached end node, securing memory for histogram
+		leaf node !
+		*Tree::build:再帰処理で Node の階層を生成する関数．:1
+		140_特徴量の次元数．ちょっとダサいが，サンプル中の特徴量の次元数を参照する
+		特徴量の次元数=25
+		Since the maximum value and the minimum value of each dimension of the feature quantity are necessary in the threshold value random generation after 141 _, it is obtained here first
+		142_情報利得を最大化する分割結果を探索する
+		143_分岐につかう特徴量の次元をランダムに決定
+145_[1/50]gain = -0.893051
+145_[2/50]gain = -0.788562
+145_[3/50]gain = -0.788562
+145_[4/50]gain = -0.788562
+145_[5/50]gain = -0.788562
+145_[6/50]gain = -0.788562
+145_[7/50]gain = -0.788562
+145_[8/50]gain = -0.788562
+145_[9/50]gain = -0.770129
+145_[10/50]gain = -0.770129
+145_[11/50]gain = 0
+145_[12/50]gain = 0
+145_[13/50]gain = 0
+145_[14/50]gain = 0
+145_[15/50]gain = 0
+145_[16/50]gain = 0
+145_[17/50]gain = 0
+145_[18/50]gain = 0
+145_[19/50]gain = 0
+145_[20/50]gain = 0
+145_[21/50]gain = 0
+145_[22/50]gain = 0
+145_[23/50]gain = 0
+145_[24/50]gain = 0
+145_[25/50]gain = 0
+145_[26/50]gain = 0
+145_[27/50]gain = 0
+145_[28/50]gain = 0
+145_[29/50]gain = 0
+145_[30/50]gain = 0
+145_[31/50]gain = 0
+145_[32/50]gain = 0
+145_[33/50]gain = 0
+145_[34/50]gain = 0
+145_[35/50]gain = 0
+145_[36/50]gain = 0
+145_[37/50]gain = 0
+145_[38/50]gain = 0
+145_[39/50]gain = 0
+145_[40/50]gain = 0
+145_[41/50]gain = 0
+145_[42/50]gain = 0
+145_[43/50]gain = 0
+145_[44/50]gain = 0
+145_[45/50]gain = 0
+145_[46/50]gain = 0
+145_[47/50]gain = 0
+145_[48/50]gain = 0
+145_[49/50]gain = 0
+145_[50/50]gain = 0
+
+		146_Save best parameters to node
+		147 _ Check if it reached the terminal node this time
+		148_Since it reached end node, securing memory for histogram
+		leaf node !
+	15_ Create a histogram of the terminal nodes of the decision tree
+		Tree::BuildHistogramsFunction: A function that generates a histogram of a terminal node by learning data using a constructed decision tree structure:11
+		Clear the histogram of all the terminal nodes to zero
+		Vote the learning data one by one on the histogram
+		Normalize the histogram of all the terminal nodes
+	12_決定木を新たに作成する
+	13_この決定木のためのサブセット学習データを生成
+39.5
+39
+39
+	14_サブセットを使って決定木を学習させる
+		Tree::BuildTree関数:指定されたパラメータで学習データから決定木構造を生成する関数:10
+		build関数へ．
+		*Tree::build:再帰処理で Node の階層を生成する関数．:1
+		140_特徴量の次元数．ちょっとダサいが，サンプル中の特徴量の次元数を参照する
+		特徴量の次元数=25
+		Since the maximum value and the minimum value of each dimension of the feature quantity are necessary in the threshold value random generation after 141 _, it is obtained here first
+		142_情報利得を最大化する分割結果を探索する
+		143_分岐につかう特徴量の次元をランダムに決定
+145_[1/50]gain = -1.19492
+145_[2/50]gain = -1.19492
+145_[3/50]gain = -1.19492
+145_[4/50]gain = -1.19492
+145_[5/50]gain = -1.19492
+145_[6/50]gain = -1.16501
+145_[7/50]gain = -0.994091
+145_[8/50]gain = -0.994091
+145_[9/50]gain = -0.994091
+145_[10/50]gain = -0.994091
+145_[11/50]gain = -0.994091
+145_[12/50]gain = -0.994091
+145_[13/50]gain = -0.994091
+145_[14/50]gain = -0.994091
+145_[15/50]gain = -0.994091
+145_[16/50]gain = -0.994091
+145_[17/50]gain = -0.994091
+145_[18/50]gain = -0.994091
+145_[19/50]gain = -0.994091
+145_[20/50]gain = -0.994091
+145_[21/50]gain = -0.994091
+145_[22/50]gain = -0.994091
+145_[23/50]gain = -0.994091
+145_[24/50]gain = -0.994091
+145_[25/50]gain = -0.994091
+145_[26/50]gain = -0.994091
+145_[27/50]gain = -0.994091
+145_[28/50]gain = -0.994091
+145_[29/50]gain = -0.994091
+145_[30/50]gain = -0.994091
+145_[31/50]gain = -0.994091
+145_[32/50]gain = -0.994091
+145_[33/50]gain = -0.994091
+145_[34/50]gain = -0.994091
+145_[35/50]gain = -0.994091
+145_[36/50]gain = -0.994091
+145_[37/50]gain = -0.994091
+145_[38/50]gain = -0.994091
+145_[39/50]gain = -0.994091
+145_[40/50]gain = -0.994091
+145_[41/50]gain = -0.994091
+145_[42/50]gain = -0.994091
+145_[43/50]gain = -0.994091
+145_[44/50]gain = -0.994091
+145_[45/50]gain = -0.994091
+145_[46/50]gain = -0.994091
+145_[47/50]gain = -0.994091
+145_[48/50]gain = -0.994091
+145_[49/50]gain = -0.994091
+145_[50/50]gain = -0.994091
+
+		146_Save best parameters to node
+		147 _ Check if it reached the terminal node this time
+		149_まだ分岐ノードなので，子ノードを生成する
+		*Tree::build:再帰処理で Node の階層を生成する関数．:1
+		140_特徴量の次元数．ちょっとダサいが，サンプル中の特徴量の次元数を参照する
+		特徴量の次元数=25
+		Since the maximum value and the minimum value of each dimension of the feature quantity are necessary in the threshold value random generation after 141 _, it is obtained here first
+		142_情報利得を最大化する分割結果を探索する
+		143_分岐につかう特徴量の次元をランダムに決定
+145_[1/50]gain = -0.224193
+145_[2/50]gain = 0
+145_[3/50]gain = 0
+145_[4/50]gain = 0
+145_[5/50]gain = 0
+145_[6/50]gain = 0
+145_[7/50]gain = 0
+145_[8/50]gain = 0
+145_[9/50]gain = 0
+145_[10/50]gain = 0
+145_[11/50]gain = 0
+145_[12/50]gain = 0
+145_[13/50]gain = 0
+145_[14/50]gain = 0
+145_[15/50]gain = 0
+145_[16/50]gain = 0
+145_[17/50]gain = 0
+145_[18/50]gain = 0
+145_[19/50]gain = 0
+145_[20/50]gain = 0
+145_[21/50]gain = 0
+145_[22/50]gain = 0
+145_[23/50]gain = 0
+145_[24/50]gain = 0
+145_[25/50]gain = 0
+145_[26/50]gain = 0
+145_[27/50]gain = 0
+145_[28/50]gain = 0
+145_[29/50]gain = 0
+145_[30/50]gain = 0
+145_[31/50]gain = 0
+145_[32/50]gain = 0
+145_[33/50]gain = 0
+145_[34/50]gain = 0
+145_[35/50]gain = 0
+145_[36/50]gain = 0
+145_[37/50]gain = 0
+145_[38/50]gain = 0
+145_[39/50]gain = 0
+145_[40/50]gain = 0
+145_[41/50]gain = 0
+145_[42/50]gain = 0
+145_[43/50]gain = 0
+145_[44/50]gain = 0
+145_[45/50]gain = 0
+145_[46/50]gain = 0
+145_[47/50]gain = 0
+145_[48/50]gain = 0
+145_[49/50]gain = 0
+145_[50/50]gain = 0
+
+		146_Save best parameters to node
+		147 _ Check if it reached the terminal node this time
+		148_Since it reached end node, securing memory for histogram
+		leaf node !
+		*Tree::build:再帰処理で Node の階層を生成する関数．:1
+		140_特徴量の次元数．ちょっとダサいが，サンプル中の特徴量の次元数を参照する
+		特徴量の次元数=25
+		Since the maximum value and the minimum value of each dimension of the feature quantity are necessary in the threshold value random generation after 141 _, it is obtained here first
+		142_情報利得を最大化する分割結果を探索する
+		143_分岐につかう特徴量の次元をランダムに決定
+145_[1/50]gain = -0.839007
+145_[2/50]gain = -0.839007
+145_[3/50]gain = -0.839007
+145_[4/50]gain = -0.839007
+145_[5/50]gain = -0.625518
+145_[6/50]gain = -0.625518
+145_[7/50]gain = -0.625518
+145_[8/50]gain = -0.625518
+145_[9/50]gain = -0.625518
+145_[10/50]gain = -0.625518
+145_[11/50]gain = -0.625518
+145_[12/50]gain = -0.625518
+145_[13/50]gain = -0.625518
+145_[14/50]gain = -0.625518
+145_[15/50]gain = -0.625518
+145_[16/50]gain = -0.205694
+145_[17/50]gain = -0.205694
+145_[18/50]gain = -0.205694
+145_[19/50]gain = -0.205694
+145_[20/50]gain = -0.205694
+145_[21/50]gain = -0.205694
+145_[22/50]gain = -0.205694
+145_[23/50]gain = -0.205694
+145_[24/50]gain = -0.205694
+145_[25/50]gain = -0.205694
+145_[26/50]gain = -0.205694
+145_[27/50]gain = -0.205694
+145_[28/50]gain = -0.205694
+145_[29/50]gain = -0.205694
+145_[30/50]gain = -0.205694
+145_[31/50]gain = -0.205694
+145_[32/50]gain = -0.205694
+145_[33/50]gain = -0.205694
+145_[34/50]gain = -0.205694
+145_[35/50]gain = -0.205694
+145_[36/50]gain = -0.205694
+145_[37/50]gain = -0.205694
+145_[38/50]gain = -0.205694
+145_[39/50]gain = -0.205694
+145_[40/50]gain = -0.205694
+145_[41/50]gain = -0.205694
+145_[42/50]gain = -0.205694
+145_[43/50]gain = -0.205694
+145_[44/50]gain = -0.205694
+145_[45/50]gain = -0.205694
+145_[46/50]gain = -0.205694
+145_[47/50]gain = -0.205694
+145_[48/50]gain = -0.205694
+145_[49/50]gain = -0.205694
+145_[50/50]gain = -0.205694
+
+		146_Save best parameters to node
+		147 _ Check if it reached the terminal node this time
+		149_まだ分岐ノードなので，子ノードを生成する
+		*Tree::build:再帰処理で Node の階層を生成する関数．:1
+		140_特徴量の次元数．ちょっとダサいが，サンプル中の特徴量の次元数を参照する
+		特徴量の次元数=25
+		Since the maximum value and the minimum value of each dimension of the feature quantity are necessary in the threshold value random generation after 141 _, it is obtained here first
+		142_情報利得を最大化する分割結果を探索する
+		143_分岐につかう特徴量の次元をランダムに決定
+145_[1/50]gain = 0
+145_[2/50]gain = 0
+145_[3/50]gain = 0
+145_[4/50]gain = 0
+145_[5/50]gain = 0
+145_[6/50]gain = 0
+145_[7/50]gain = 0
+145_[8/50]gain = 0
+145_[9/50]gain = 0
+145_[10/50]gain = 0
+145_[11/50]gain = 0
+145_[12/50]gain = 0
+145_[13/50]gain = 0
+145_[14/50]gain = 0
+145_[15/50]gain = 0
+145_[16/50]gain = 0
+145_[17/50]gain = 0
+145_[18/50]gain = 0
+145_[19/50]gain = 0
+145_[20/50]gain = 0
+145_[21/50]gain = 0
+145_[22/50]gain = 0
+145_[23/50]gain = 0
+145_[24/50]gain = 0
+145_[25/50]gain = 0
+145_[26/50]gain = 0
+145_[27/50]gain = 0
+145_[28/50]gain = 0
+145_[29/50]gain = 0
+145_[30/50]gain = 0
+145_[31/50]gain = 0
+145_[32/50]gain = 0
+145_[33/50]gain = 0
+145_[34/50]gain = 0
+145_[35/50]gain = 0
+145_[36/50]gain = 0
+145_[37/50]gain = 0
+145_[38/50]gain = 0
+145_[39/50]gain = 0
+145_[40/50]gain = 0
+145_[41/50]gain = 0
+145_[42/50]gain = 0
+145_[43/50]gain = 0
+145_[44/50]gain = 0
+145_[45/50]gain = 0
+145_[46/50]gain = 0
+145_[47/50]gain = 0
+145_[48/50]gain = 0
+145_[49/50]gain = 0
+145_[50/50]gain = 0
+
+		146_Save best parameters to node
+		147 _ Check if it reached the terminal node this time
+		148_Since it reached end node, securing memory for histogram
+		leaf node !
+		*Tree::build:再帰処理で Node の階層を生成する関数．:1
+		140_特徴量の次元数．ちょっとダサいが，サンプル中の特徴量の次元数を参照する
+		特徴量の次元数=25
+		Since the maximum value and the minimum value of each dimension of the feature quantity are necessary in the threshold value random generation after 141 _, it is obtained here first
+		142_情報利得を最大化する分割結果を探索する
+		143_分岐につかう特徴量の次元をランダムに決定
+145_[1/50]gain = 0
+145_[2/50]gain = 0
+145_[3/50]gain = 0
+145_[4/50]gain = 0
+145_[5/50]gain = 0
+145_[6/50]gain = 0
+145_[7/50]gain = 0
+145_[8/50]gain = 0
+145_[9/50]gain = 0
+145_[10/50]gain = 0
+145_[11/50]gain = 0
+145_[12/50]gain = 0
+145_[13/50]gain = 0
+145_[14/50]gain = 0
+145_[15/50]gain = 0
+145_[16/50]gain = 0
+145_[17/50]gain = 0
+145_[18/50]gain = 0
+145_[19/50]gain = 0
+145_[20/50]gain = 0
+145_[21/50]gain = 0
+145_[22/50]gain = 0
+145_[23/50]gain = 0
+145_[24/50]gain = 0
+145_[25/50]gain = 0
+145_[26/50]gain = 0
+145_[27/50]gain = 0
+145_[28/50]gain = 0
+145_[29/50]gain = 0
+145_[30/50]gain = 0
+145_[31/50]gain = 0
+145_[32/50]gain = 0
+145_[33/50]gain = 0
+145_[34/50]gain = 0
+145_[35/50]gain = 0
+145_[36/50]gain = 0
+145_[37/50]gain = 0
+145_[38/50]gain = 0
+145_[39/50]gain = 0
+145_[40/50]gain = 0
+145_[41/50]gain = 0
+145_[42/50]gain = 0
+145_[43/50]gain = 0
+145_[44/50]gain = 0
+145_[45/50]gain = 0
+145_[46/50]gain = 0
+145_[47/50]gain = 0
+145_[48/50]gain = 0
+145_[49/50]gain = 0
+145_[50/50]gain = 0
+
+		146_Save best parameters to node
+		147 _ Check if it reached the terminal node this time
+		148_Since it reached end node, securing memory for histogram
+		leaf node !
+	15_ Create a histogram of the terminal nodes of the decision tree
+		Tree::BuildHistogramsFunction: A function that generates a histogram of a terminal node by learning data using a constructed decision tree structure:11
+		Clear the histogram of all the terminal nodes to zero
+		Vote the learning data one by one on the histogram
+		Normalize the histogram of all the terminal nodes
+	12_決定木を新たに作成する
+	13_この決定木のためのサブセット学習データを生成
+39.5
+39
+39
+	14_サブセットを使って決定木を学習させる
+		Tree::BuildTree関数:指定されたパラメータで学習データから決定木構造を生成する関数:10
+		build関数へ．
+		*Tree::build:再帰処理で Node の階層を生成する関数．:1
+		140_特徴量の次元数．ちょっとダサいが，サンプル中の特徴量の次元数を参照する
+		特徴量の次元数=25
+		Since the maximum value and the minimum value of each dimension of the feature quantity are necessary in the threshold value random generation after 141 _, it is obtained here first
+		142_情報利得を最大化する分割結果を探索する
+		143_分岐につかう特徴量の次元をランダムに決定
+145_[1/50]gain = -1.66498
+145_[2/50]gain = -1.2747
+145_[3/50]gain = -1.2747
+145_[4/50]gain = -1.2747
+145_[5/50]gain = -1.2747
+145_[6/50]gain = -1.2747
+145_[7/50]gain = -1.2747
+145_[8/50]gain = -1.2747
+145_[9/50]gain = -1.2747
+145_[10/50]gain = -1.2747
+145_[11/50]gain = -1.2747
+145_[12/50]gain = -1.2747
+145_[13/50]gain = -1.2747
+145_[14/50]gain = -1.2747
+145_[15/50]gain = -1.2747
+145_[16/50]gain = -1.2747
+145_[17/50]gain = -1.2747
+145_[18/50]gain = -1.2747
+145_[19/50]gain = -1.2747
+145_[20/50]gain = -1.2747
+145_[21/50]gain = -1.2747
+145_[22/50]gain = -1.2747
+145_[23/50]gain = -1.2747
+145_[24/50]gain = -1.2747
+145_[25/50]gain = -1.2747
+145_[26/50]gain = -1.2747
+145_[27/50]gain = -1.2747
+145_[28/50]gain = -1.2747
+145_[29/50]gain = -1.2747
+145_[30/50]gain = -1.2747
+145_[31/50]gain = -1.2747
+145_[32/50]gain = -1.2747
+145_[33/50]gain = -1.2747
+145_[34/50]gain = -1.2747
+145_[35/50]gain = -1.2747
+145_[36/50]gain = -1.2747
+145_[37/50]gain = -1.2747
+145_[38/50]gain = -1.2747
+145_[39/50]gain = -1.2747
+145_[40/50]gain = -1.2747
+145_[41/50]gain = -1.2747
+145_[42/50]gain = -1.2747
+145_[43/50]gain = -1.2747
+145_[44/50]gain = -1.2747
+145_[45/50]gain = -1.2747
+145_[46/50]gain = -1.2747
+145_[47/50]gain = -1.2747
+145_[48/50]gain = -1.2747
+145_[49/50]gain = -1.2747
+145_[50/50]gain = -1.2747
+
+		146_Save best parameters to node
+		147 _ Check if it reached the terminal node this time
+		149_まだ分岐ノードなので，子ノードを生成する
+		*Tree::build:再帰処理で Node の階層を生成する関数．:1
+		140_特徴量の次元数．ちょっとダサいが，サンプル中の特徴量の次元数を参照する
+		特徴量の次元数=25
+		Since the maximum value and the minimum value of each dimension of the feature quantity are necessary in the threshold value random generation after 141 _, it is obtained here first
+		142_情報利得を最大化する分割結果を探索する
+		143_分岐につかう特徴量の次元をランダムに決定
+145_[1/50]gain = -0.697245
+145_[2/50]gain = -0.171725
+145_[3/50]gain = -0.171725
+145_[4/50]gain = -0.171725
+145_[5/50]gain = -0.171725
+145_[6/50]gain = -0.171725
+145_[7/50]gain = -0.171725
+145_[8/50]gain = -0.171725
+145_[9/50]gain = -0.171725
+145_[10/50]gain = 0
+145_[11/50]gain = 0
+145_[12/50]gain = 0
+145_[13/50]gain = 0
+145_[14/50]gain = 0
+145_[15/50]gain = 0
+145_[16/50]gain = 0
+145_[17/50]gain = 0
+145_[18/50]gain = 0
+145_[19/50]gain = 0
+145_[20/50]gain = 0
+145_[21/50]gain = 0
+145_[22/50]gain = 0
+145_[23/50]gain = 0
+145_[24/50]gain = 0
+145_[25/50]gain = 0
+145_[26/50]gain = 0
+145_[27/50]gain = 0
+145_[28/50]gain = 0
+145_[29/50]gain = 0
+145_[30/50]gain = 0
+145_[31/50]gain = 0
+145_[32/50]gain = 0
+145_[33/50]gain = 0
+145_[34/50]gain = 0
+145_[35/50]gain = 0
+145_[36/50]gain = 0
+145_[37/50]gain = 0
+145_[38/50]gain = 0
+145_[39/50]gain = 0
+145_[40/50]gain = 0
+145_[41/50]gain = 0
+145_[42/50]gain = 0
+145_[43/50]gain = 0
+145_[44/50]gain = 0
+145_[45/50]gain = 0
+145_[46/50]gain = 0
+145_[47/50]gain = 0
+145_[48/50]gain = 0
+145_[49/50]gain = 0
+145_[50/50]gain = 0
+
+		146_Save best parameters to node
+		147 _ Check if it reached the terminal node this time
+		148_Since it reached end node, securing memory for histogram
+		leaf node !
+		*Tree::build:再帰処理で Node の階層を生成する関数．:1
+		140_特徴量の次元数．ちょっとダサいが，サンプル中の特徴量の次元数を参照する
+		特徴量の次元数=25
+		Since the maximum value and the minimum value of each dimension of the feature quantity are necessary in the threshold value random generation after 141 _, it is obtained here first
+		142_情報利得を最大化する分割結果を探索する
+		143_分岐につかう特徴量の次元をランダムに決定
+145_[1/50]gain = -1.51129
+145_[2/50]gain = -0.874866
+145_[3/50]gain = -0.874866
+145_[4/50]gain = -0.874866
+145_[5/50]gain = -0.874866
+145_[6/50]gain = -0.874866
+145_[7/50]gain = -0.874866
+145_[8/50]gain = -0.874866
+145_[9/50]gain = -0.874866
+145_[10/50]gain = -0.874866
+145_[11/50]gain = -0.874866
+145_[12/50]gain = -0.874866
+145_[13/50]gain = -0.874866
+145_[14/50]gain = -0.874866
+145_[15/50]gain = -0.874866
+145_[16/50]gain = -0.874866
+145_[17/50]gain = -0.874866
+145_[18/50]gain = -0.874866
+145_[19/50]gain = -0.874866
+145_[20/50]gain = -0.874866
+145_[21/50]gain = -0.874866
+145_[22/50]gain = -0.874866
+145_[23/50]gain = -0.874866
+145_[24/50]gain = -0.874866
+145_[25/50]gain = -0.874866
+145_[26/50]gain = -0.874866
+145_[27/50]gain = -0.874866
+145_[28/50]gain = -0.874866
+145_[29/50]gain = -0.874866
+145_[30/50]gain = -0.874866
+145_[31/50]gain = -0.874866
+145_[32/50]gain = -0.874866
+145_[33/50]gain = -0.874866
+145_[34/50]gain = -0.874866
+145_[35/50]gain = -0.874866
+145_[36/50]gain = -0.874866
+145_[37/50]gain = -0.874866
+145_[38/50]gain = -0.874866
+145_[39/50]gain = -0.874866
+145_[40/50]gain = -0.874866
+145_[41/50]gain = -0.874866
+145_[42/50]gain = -0.874866
+145_[43/50]gain = -0.874866
+145_[44/50]gain = -0.874866
+145_[45/50]gain = -0.874866
+145_[46/50]gain = -0.874866
+145_[47/50]gain = -0.874866
+145_[48/50]gain = -0.874866
+145_[49/50]gain = -0.874866
+145_[50/50]gain = -0.874866
+
+		146_Save best parameters to node
+		147 _ Check if it reached the terminal node this time
+		149_まだ分岐ノードなので，子ノードを生成する
+		*Tree::build:再帰処理で Node の階層を生成する関数．:1
+		140_特徴量の次元数．ちょっとダサいが，サンプル中の特徴量の次元数を参照する
+		特徴量の次元数=25
+		Since the maximum value and the minimum value of each dimension of the feature quantity are necessary in the threshold value random generation after 141 _, it is obtained here first
+		142_情報利得を最大化する分割結果を探索する
+		143_分岐につかう特徴量の次元をランダムに決定
+145_[1/50]gain = 0
+145_[2/50]gain = 0
+145_[3/50]gain = 0
+145_[4/50]gain = 0
+145_[5/50]gain = 0
+145_[6/50]gain = 0
+145_[7/50]gain = 0
+145_[8/50]gain = 0
+145_[9/50]gain = 0
+145_[10/50]gain = 0
+145_[11/50]gain = 0
+145_[12/50]gain = 0
+145_[13/50]gain = 0
+145_[14/50]gain = 0
+145_[15/50]gain = 0
+145_[16/50]gain = 0
+145_[17/50]gain = 0
+145_[18/50]gain = 0
+145_[19/50]gain = 0
+145_[20/50]gain = 0
+145_[21/50]gain = 0
+145_[22/50]gain = 0
+145_[23/50]gain = 0
+145_[24/50]gain = 0
+145_[25/50]gain = 0
+145_[26/50]gain = 0
+145_[27/50]gain = 0
+145_[28/50]gain = 0
+145_[29/50]gain = 0
+145_[30/50]gain = 0
+145_[31/50]gain = 0
+145_[32/50]gain = 0
+145_[33/50]gain = 0
+145_[34/50]gain = 0
+145_[35/50]gain = 0
+145_[36/50]gain = 0
+145_[37/50]gain = 0
+145_[38/50]gain = 0
+145_[39/50]gain = 0
+145_[40/50]gain = 0
+145_[41/50]gain = 0
+145_[42/50]gain = 0
+145_[43/50]gain = 0
+145_[44/50]gain = 0
+145_[45/50]gain = 0
+145_[46/50]gain = 0
+145_[47/50]gain = 0
+145_[48/50]gain = 0
+145_[49/50]gain = 0
+145_[50/50]gain = 0
+
+		146_Save best parameters to node
+		147 _ Check if it reached the terminal node this time
+		148_Since it reached end node, securing memory for histogram
+		leaf node !
+		*Tree::build:再帰処理で Node の階層を生成する関数．:1
+		140_特徴量の次元数．ちょっとダサいが，サンプル中の特徴量の次元数を参照する
+		特徴量の次元数=25
+		Since the maximum value and the minimum value of each dimension of the feature quantity are necessary in the threshold value random generation after 141 _, it is obtained here first
+		142_情報利得を最大化する分割結果を探索する
+		143_分岐につかう特徴量の次元をランダムに決定
+145_[1/50]gain = -0.754406
+145_[2/50]gain = -0.754406
+145_[3/50]gain = 0
+145_[4/50]gain = 0
+145_[5/50]gain = 0
+145_[6/50]gain = 0
+145_[7/50]gain = 0
+145_[8/50]gain = 0
+145_[9/50]gain = 0
+145_[10/50]gain = 0
+145_[11/50]gain = 0
+145_[12/50]gain = 0
+145_[13/50]gain = 0
+145_[14/50]gain = 0
+145_[15/50]gain = 0
+145_[16/50]gain = 0
+145_[17/50]gain = 0
+145_[18/50]gain = 0
+145_[19/50]gain = 0
+145_[20/50]gain = 0
+145_[21/50]gain = 0
+145_[22/50]gain = 0
+145_[23/50]gain = 0
+145_[24/50]gain = 0
+145_[25/50]gain = 0
+145_[26/50]gain = 0
+145_[27/50]gain = 0
+145_[28/50]gain = 0
+145_[29/50]gain = 0
+145_[30/50]gain = 0
+145_[31/50]gain = 0
+145_[32/50]gain = 0
+145_[33/50]gain = 0
+145_[34/50]gain = 0
+145_[35/50]gain = 0
+145_[36/50]gain = 0
+145_[37/50]gain = 0
+145_[38/50]gain = 0
+145_[39/50]gain = 0
+145_[40/50]gain = 0
+145_[41/50]gain = 0
+145_[42/50]gain = 0
+145_[43/50]gain = 0
+145_[44/50]gain = 0
+145_[45/50]gain = 0
+145_[46/50]gain = 0
+145_[47/50]gain = 0
+145_[48/50]gain = 0
+145_[49/50]gain = 0
+145_[50/50]gain = 0
+
+		146_Save best parameters to node
+		147 _ Check if it reached the terminal node this time
+		148_Since it reached end node, securing memory for histogram
+		leaf node !
+	15_ Create a histogram of the terminal nodes of the decision tree
+		Tree::BuildHistogramsFunction: A function that generates a histogram of a terminal node by learning data using a constructed decision tree structure:11
+		Clear the histogram of all the terminal nodes to zero
+		Vote the learning data one by one on the histogram
+		Normalize the histogram of all the terminal nodes
+	12_決定木を新たに作成する
+	13_この決定木のためのサブセット学習データを生成
+39.5
+39
+39
+	14_サブセットを使って決定木を学習させる
+		Tree::BuildTree関数:指定されたパラメータで学習データから決定木構造を生成する関数:10
+		build関数へ．
+		*Tree::build:再帰処理で Node の階層を生成する関数．:1
+		140_特徴量の次元数．ちょっとダサいが，サンプル中の特徴量の次元数を参照する
+		特徴量の次元数=25
+		Since the maximum value and the minimum value of each dimension of the feature quantity are necessary in the threshold value random generation after 141 _, it is obtained here first
+		142_情報利得を最大化する分割結果を探索する
+		143_分岐につかう特徴量の次元をランダムに決定
+145_[1/50]gain = -1.72845
+145_[2/50]gain = -1.72845
+145_[3/50]gain = -1.72845
+145_[4/50]gain = -1.72845
+145_[5/50]gain = -1.10328
+145_[6/50]gain = -1.10328
+145_[7/50]gain = -1.10328
+145_[8/50]gain = -1.10328
+145_[9/50]gain = -1.10328
+145_[10/50]gain = -1.10328
+145_[11/50]gain = -1.10328
+145_[12/50]gain = -1.10328
+145_[13/50]gain = -1.10328
+145_[14/50]gain = -1.10328
+145_[15/50]gain = -1.10328
+145_[16/50]gain = -1.10328
+145_[17/50]gain = -1.10328
+145_[18/50]gain = -1.10328
+145_[19/50]gain = -1.10328
+145_[20/50]gain = -1.10328
+145_[21/50]gain = -1.10328
+145_[22/50]gain = -1.10328
+145_[23/50]gain = -1.10328
+145_[24/50]gain = -1.10328
+145_[25/50]gain = -1.10328
+145_[26/50]gain = -1.10328
+145_[27/50]gain = -1.10328
+145_[28/50]gain = -1.10328
+145_[29/50]gain = -1.10328
+145_[30/50]gain = -1.10328
+145_[31/50]gain = -1.10328
+145_[32/50]gain = -1.08467
+145_[33/50]gain = -1.08467
+145_[34/50]gain = -1.08467
+145_[35/50]gain = -1.08467
+145_[36/50]gain = -1.08467
+145_[37/50]gain = -1.08467
+145_[38/50]gain = -1.08467
+145_[39/50]gain = -1.08467
+145_[40/50]gain = -1.08467
+145_[41/50]gain = -1.08467
+145_[42/50]gain = -1.08467
+145_[43/50]gain = -1.08467
+145_[44/50]gain = -1.08467
+145_[45/50]gain = -1.08467
+145_[46/50]gain = -1.08467
+145_[47/50]gain = -1.08467
+145_[48/50]gain = -1.08467
+145_[49/50]gain = -1.08467
+145_[50/50]gain = -1.08467
+
+		146_Save best parameters to node
+		147 _ Check if it reached the terminal node this time
+		149_まだ分岐ノードなので，子ノードを生成する
+		*Tree::build:再帰処理で Node の階層を生成する関数．:1
+		140_特徴量の次元数．ちょっとダサいが，サンプル中の特徴量の次元数を参照する
+		特徴量の次元数=25
+		Since the maximum value and the minimum value of each dimension of the feature quantity are necessary in the threshold value random generation after 141 _, it is obtained here first
+		142_情報利得を最大化する分割結果を探索する
+		143_分岐につかう特徴量の次元をランダムに決定
+145_[1/50]gain = -0.998116
+145_[2/50]gain = -0.801659
+145_[3/50]gain = -0.358481
+145_[4/50]gain = -0.358481
+145_[5/50]gain = -0.358481
+145_[6/50]gain = -0.358481
+145_[7/50]gain = -0.358481
+145_[8/50]gain = 0
+145_[9/50]gain = 0
+145_[10/50]gain = 0
+145_[11/50]gain = 0
+145_[12/50]gain = 0
+145_[13/50]gain = 0
+145_[14/50]gain = 0
+145_[15/50]gain = 0
+145_[16/50]gain = 0
+145_[17/50]gain = 0
+145_[18/50]gain = 0
+145_[19/50]gain = 0
+145_[20/50]gain = 0
+145_[21/50]gain = 0
+145_[22/50]gain = 0
+145_[23/50]gain = 0
+145_[24/50]gain = 0
+145_[25/50]gain = 0
+145_[26/50]gain = 0
+145_[27/50]gain = 0
+145_[28/50]gain = 0
+145_[29/50]gain = 0
+145_[30/50]gain = 0
+145_[31/50]gain = 0
+145_[32/50]gain = 0
+145_[33/50]gain = 0
+145_[34/50]gain = 0
+145_[35/50]gain = 0
+145_[36/50]gain = 0
+145_[37/50]gain = 0
+145_[38/50]gain = 0
+145_[39/50]gain = 0
+145_[40/50]gain = 0
+145_[41/50]gain = 0
+145_[42/50]gain = 0
+145_[43/50]gain = 0
+145_[44/50]gain = 0
+145_[45/50]gain = 0
+145_[46/50]gain = 0
+145_[47/50]gain = 0
+145_[48/50]gain = 0
+145_[49/50]gain = 0
+145_[50/50]gain = 0
+
+		146_Save best parameters to node
+		147 _ Check if it reached the terminal node this time
+		148_Since it reached end node, securing memory for histogram
+		leaf node !
+		*Tree::build:再帰処理で Node の階層を生成する関数．:1
+		140_特徴量の次元数．ちょっとダサいが，サンプル中の特徴量の次元数を参照する
+		特徴量の次元数=25
+		Since the maximum value and the minimum value of each dimension of the feature quantity are necessary in the threshold value random generation after 141 _, it is obtained here first
+		142_情報利得を最大化する分割結果を探索する
+		143_分岐につかう特徴量の次元をランダムに決定
+145_[1/50]gain = -0.422759
+145_[2/50]gain = -0.422759
+145_[3/50]gain = -0.422759
+145_[4/50]gain = -0.422759
+145_[5/50]gain = -0.422759
+145_[6/50]gain = -0.422759
+145_[7/50]gain = -0.422759
+145_[8/50]gain = -0.422759
+145_[9/50]gain = -0.422759
+145_[10/50]gain = -0.422759
+145_[11/50]gain = -0.422759
+145_[12/50]gain = -0.422759
+145_[13/50]gain = -0.422759
+145_[14/50]gain = -0.422759
+145_[15/50]gain = -0.422759
+145_[16/50]gain = -0.422759
+145_[17/50]gain = -0.189239
+145_[18/50]gain = -0.189239
+145_[19/50]gain = -0.189239
+145_[20/50]gain = -0.189239
+145_[21/50]gain = -0.189239
+145_[22/50]gain = -0.189239
+145_[23/50]gain = -0.189239
+145_[24/50]gain = -0.189239
+145_[25/50]gain = -0.189239
+145_[26/50]gain = -0.189239
+145_[27/50]gain = -0.189239
+145_[28/50]gain = -0.189239
+145_[29/50]gain = -0.189239
+145_[30/50]gain = -0.189239
+145_[31/50]gain = -0.189239
+145_[32/50]gain = -0.189239
+145_[33/50]gain = -0.189239
+145_[34/50]gain = -0.189239
+145_[35/50]gain = -0.189239
+145_[36/50]gain = -0.189239
+145_[37/50]gain = -0.189239
+145_[38/50]gain = -0.189239
+145_[39/50]gain = -0.189239
+145_[40/50]gain = -0.189239
+145_[41/50]gain = -0.189239
+145_[42/50]gain = -0.189239
+145_[43/50]gain = -0.189239
+145_[44/50]gain = -0.189239
+145_[45/50]gain = -0.189239
+145_[46/50]gain = -0.189239
+145_[47/50]gain = -0.189239
+145_[48/50]gain = -0.189239
+145_[49/50]gain = -0.189239
+145_[50/50]gain = -0.189239
+
+		146_Save best parameters to node
+		147 _ Check if it reached the terminal node this time
+		149_まだ分岐ノードなので，子ノードを生成する
+		*Tree::build:再帰処理で Node の階層を生成する関数．:1
+		140_特徴量の次元数．ちょっとダサいが，サンプル中の特徴量の次元数を参照する
+		特徴量の次元数=25
+		Since the maximum value and the minimum value of each dimension of the feature quantity are necessary in the threshold value random generation after 141 _, it is obtained here first
+		142_情報利得を最大化する分割結果を探索する
+		143_分岐につかう特徴量の次元をランダムに決定
+145_[1/50]gain = -0.315398
+145_[2/50]gain = -0.315398
+145_[3/50]gain = 0
+145_[4/50]gain = 0
+145_[5/50]gain = 0
+145_[6/50]gain = 0
+145_[7/50]gain = 0
+145_[8/50]gain = 0
+145_[9/50]gain = 0
+145_[10/50]gain = 0
+145_[11/50]gain = 0
+145_[12/50]gain = 0
+145_[13/50]gain = 0
+145_[14/50]gain = 0
+145_[15/50]gain = 0
+145_[16/50]gain = 0
+145_[17/50]gain = 0
+145_[18/50]gain = 0
+145_[19/50]gain = 0
+145_[20/50]gain = 0
+145_[21/50]gain = 0
+145_[22/50]gain = 0
+145_[23/50]gain = 0
+145_[24/50]gain = 0
+145_[25/50]gain = 0
+145_[26/50]gain = 0
+145_[27/50]gain = 0
+145_[28/50]gain = 0
+145_[29/50]gain = 0
+145_[30/50]gain = 0
+145_[31/50]gain = 0
+145_[32/50]gain = 0
+145_[33/50]gain = 0
+145_[34/50]gain = 0
+145_[35/50]gain = 0
+145_[36/50]gain = 0
+145_[37/50]gain = 0
+145_[38/50]gain = 0
+145_[39/50]gain = 0
+145_[40/50]gain = 0
+145_[41/50]gain = 0
+145_[42/50]gain = 0
+145_[43/50]gain = 0
+145_[44/50]gain = 0
+145_[45/50]gain = 0
+145_[46/50]gain = 0
+145_[47/50]gain = 0
+145_[48/50]gain = 0
+145_[49/50]gain = 0
+145_[50/50]gain = 0
+
+		146_Save best parameters to node
+		147 _ Check if it reached the terminal node this time
+		148_Since it reached end node, securing memory for histogram
+		leaf node !
+		*Tree::build:再帰処理で Node の階層を生成する関数．:1
+		140_特徴量の次元数．ちょっとダサいが，サンプル中の特徴量の次元数を参照する
+		特徴量の次元数=25
+		Since the maximum value and the minimum value of each dimension of the feature quantity are necessary in the threshold value random generation after 141 _, it is obtained here first
+		142_情報利得を最大化する分割結果を探索する
+		143_分岐につかう特徴量の次元をランダムに決定
+145_[1/50]gain = 0
+145_[2/50]gain = 0
+145_[3/50]gain = 0
+145_[4/50]gain = 0
+145_[5/50]gain = 0
+145_[6/50]gain = 0
+145_[7/50]gain = 0
+145_[8/50]gain = 0
+145_[9/50]gain = 0
+145_[10/50]gain = 0
+145_[11/50]gain = 0
+145_[12/50]gain = 0
+145_[13/50]gain = 0
+145_[14/50]gain = 0
+145_[15/50]gain = 0
+145_[16/50]gain = 0
+145_[17/50]gain = 0
+145_[18/50]gain = 0
+145_[19/50]gain = 0
+145_[20/50]gain = 0
+145_[21/50]gain = 0
+145_[22/50]gain = 0
+145_[23/50]gain = 0
+145_[24/50]gain = 0
+145_[25/50]gain = 0
+145_[26/50]gain = 0
+145_[27/50]gain = 0
+145_[28/50]gain = 0
+145_[29/50]gain = 0
+145_[30/50]gain = 0
+145_[31/50]gain = 0
+145_[32/50]gain = 0
+145_[33/50]gain = 0
+145_[34/50]gain = 0
+145_[35/50]gain = 0
+145_[36/50]gain = 0
+145_[37/50]gain = 0
+145_[38/50]gain = 0
+145_[39/50]gain = 0
+145_[40/50]gain = 0
+145_[41/50]gain = 0
+145_[42/50]gain = 0
+145_[43/50]gain = 0
+145_[44/50]gain = 0
+145_[45/50]gain = 0
+145_[46/50]gain = 0
+145_[47/50]gain = 0
+145_[48/50]gain = 0
+145_[49/50]gain = 0
+145_[50/50]gain = 0
+
+		146_Save best parameters to node
+		147 _ Check if it reached the terminal node this time
+		148_Since it reached end node, securing memory for histogram
+		leaf node !
+	15_ Create a histogram of the terminal nodes of the decision tree
+		Tree::BuildHistogramsFunction: A function that generates a histogram of a terminal node by learning data using a constructed decision tree structure:11
+		Clear the histogram of all the terminal nodes to zero
+		Vote the learning data one by one on the histogram
+		Normalize the histogram of all the terminal nodes
+	12_決定木を新たに作成する
+	13_この決定木のためのサブセット学習データを生成
+39.5
+39
+39
+	14_サブセットを使って決定木を学習させる
+		Tree::BuildTree関数:指定されたパラメータで学習データから決定木構造を生成する関数:10
+		build関数へ．
+		*Tree::build:再帰処理で Node の階層を生成する関数．:1
+		140_特徴量の次元数．ちょっとダサいが，サンプル中の特徴量の次元数を参照する
+		特徴量の次元数=25
+		Since the maximum value and the minimum value of each dimension of the feature quantity are necessary in the threshold value random generation after 141 _, it is obtained here first
+		142_情報利得を最大化する分割結果を探索する
+		143_分岐につかう特徴量の次元をランダムに決定
+145_[1/50]gain = -1.75881
+145_[2/50]gain = -1.75881
+145_[3/50]gain = -1.75881
+145_[4/50]gain = -1.05512
+145_[5/50]gain = -1.05512
+145_[6/50]gain = -1.05512
+145_[7/50]gain = -1.05512
+145_[8/50]gain = -1.05512
+145_[9/50]gain = -1.05512
+145_[10/50]gain = -1.05512
+145_[11/50]gain = -1.05512
+145_[12/50]gain = -1.05512
+145_[13/50]gain = -1.05512
+145_[14/50]gain = -1.05512
+145_[15/50]gain = -1.05512
+145_[16/50]gain = -1.05512
+145_[17/50]gain = -1.05512
+145_[18/50]gain = -1.05512
+145_[19/50]gain = -1.05512
+145_[20/50]gain = -1.05512
+145_[21/50]gain = -1.05512
+145_[22/50]gain = -1.05512
+145_[23/50]gain = -1.05512
+145_[24/50]gain = -1.05512
+145_[25/50]gain = -1.05512
+145_[26/50]gain = -1.05512
+145_[27/50]gain = -1.05512
+145_[28/50]gain = -1.05512
+145_[29/50]gain = -1.05512
+145_[30/50]gain = -1.05512
+145_[31/50]gain = -1.05512
+145_[32/50]gain = -1.05512
+145_[33/50]gain = -1.05512
+145_[34/50]gain = -1.05512
+145_[35/50]gain = -1.05512
+145_[36/50]gain = -1.05512
+145_[37/50]gain = -1.05512
+145_[38/50]gain = -1.05512
+145_[39/50]gain = -1.05512
+145_[40/50]gain = -1.05512
+145_[41/50]gain = -1.05512
+145_[42/50]gain = -1.05512
+145_[43/50]gain = -1.05512
+145_[44/50]gain = -1.05512
+145_[45/50]gain = -1.05512
+145_[46/50]gain = -1.05512
+145_[47/50]gain = -1.05512
+145_[48/50]gain = -1.05512
+145_[49/50]gain = -1.05512
+145_[50/50]gain = -1.05512
+
+		146_Save best parameters to node
+		147 _ Check if it reached the terminal node this time
+		149_まだ分岐ノードなので，子ノードを生成する
+		*Tree::build:再帰処理で Node の階層を生成する関数．:1
+		140_特徴量の次元数．ちょっとダサいが，サンプル中の特徴量の次元数を参照する
+		特徴量の次元数=25
+		Since the maximum value and the minimum value of each dimension of the feature quantity are necessary in the threshold value random generation after 141 _, it is obtained here first
+		142_情報利得を最大化する分割結果を探索する
+		143_分岐につかう特徴量の次元をランダムに決定
+145_[1/50]gain = -1.30851
+145_[2/50]gain = -1.30851
+145_[3/50]gain = -1.30851
+145_[4/50]gain = -0.653846
+145_[5/50]gain = -0.653846
+145_[6/50]gain = -0.653846
+145_[7/50]gain = -0.653846
+145_[8/50]gain = -0.653846
+145_[9/50]gain = -0.653846
+145_[10/50]gain = -0.653846
+145_[11/50]gain = -0.653846
+145_[12/50]gain = -0.653846
+145_[13/50]gain = -0.653846
+145_[14/50]gain = -0.653846
+145_[15/50]gain = -0.653846
+145_[16/50]gain = -0.653846
+145_[17/50]gain = -0.653846
+145_[18/50]gain = -0.653846
+145_[19/50]gain = -0.653846
+145_[20/50]gain = -0.653846
+145_[21/50]gain = -0.653846
+145_[22/50]gain = -0.653846
+145_[23/50]gain = -0.653846
+145_[24/50]gain = -0.653846
+145_[25/50]gain = -0.653846
+145_[26/50]gain = -0.653846
+145_[27/50]gain = -0.653846
+145_[28/50]gain = -0.653846
+145_[29/50]gain = -0.653846
+145_[30/50]gain = -0.653846
+145_[31/50]gain = -0.653846
+145_[32/50]gain = -0.653846
+145_[33/50]gain = -0.653846
+145_[34/50]gain = -0.653846
+145_[35/50]gain = -0.653846
+145_[36/50]gain = -0.653846
+145_[37/50]gain = -0.653846
+145_[38/50]gain = -0.653846
+145_[39/50]gain = -0.653846
+145_[40/50]gain = -0.653846
+145_[41/50]gain = -0.653846
+145_[42/50]gain = -0.653846
+145_[43/50]gain = -0.653846
+145_[44/50]gain = -0.653846
+145_[45/50]gain = -0.653846
+145_[46/50]gain = -0.653846
+145_[47/50]gain = -0.653846
+145_[48/50]gain = -0.653846
+145_[49/50]gain = -0.653846
+145_[50/50]gain = -0.653846
+
+		146_Save best parameters to node
+		147 _ Check if it reached the terminal node this time
+		149_まだ分岐ノードなので，子ノードを生成する
+		*Tree::build:再帰処理で Node の階層を生成する関数．:1
+		140_特徴量の次元数．ちょっとダサいが，サンプル中の特徴量の次元数を参照する
+		特徴量の次元数=25
+		Since the maximum value and the minimum value of each dimension of the feature quantity are necessary in the threshold value random generation after 141 _, it is obtained here first
+		142_情報利得を最大化する分割結果を探索する
+		143_分岐につかう特徴量の次元をランダムに決定
+145_[1/50]gain = 0
+145_[2/50]gain = 0
+145_[3/50]gain = 0
+145_[4/50]gain = 0
+145_[5/50]gain = 0
+145_[6/50]gain = 0
+145_[7/50]gain = 0
+145_[8/50]gain = 0
+145_[9/50]gain = 0
+145_[10/50]gain = 0
+145_[11/50]gain = 0
+145_[12/50]gain = 0
+145_[13/50]gain = 0
+145_[14/50]gain = 0
+145_[15/50]gain = 0
+145_[16/50]gain = 0
+145_[17/50]gain = 0
+145_[18/50]gain = 0
+145_[19/50]gain = 0
+145_[20/50]gain = 0
+145_[21/50]gain = 0
+145_[22/50]gain = 0
+145_[23/50]gain = 0
+145_[24/50]gain = 0
+145_[25/50]gain = 0
+145_[26/50]gain = 0
+145_[27/50]gain = 0
+145_[28/50]gain = 0
+145_[29/50]gain = 0
+145_[30/50]gain = 0
+145_[31/50]gain = 0
+145_[32/50]gain = 0
+145_[33/50]gain = 0
+145_[34/50]gain = 0
+145_[35/50]gain = 0
+145_[36/50]gain = 0
+145_[37/50]gain = 0
+145_[38/50]gain = 0
+145_[39/50]gain = 0
+145_[40/50]gain = 0
+145_[41/50]gain = 0
+145_[42/50]gain = 0
+145_[43/50]gain = 0
+145_[44/50]gain = 0
+145_[45/50]gain = 0
+145_[46/50]gain = 0
+145_[47/50]gain = 0
+145_[48/50]gain = 0
+145_[49/50]gain = 0
+145_[50/50]gain = 0
+
+		146_Save best parameters to node
+		147 _ Check if it reached the terminal node this time
+		148_Since it reached end node, securing memory for histogram
+		leaf node !
+		*Tree::build:再帰処理で Node の階層を生成する関数．:1
+		140_特徴量の次元数．ちょっとダサいが，サンプル中の特徴量の次元数を参照する
+		特徴量の次元数=25
+		Since the maximum value and the minimum value of each dimension of the feature quantity are necessary in the threshold value random generation after 141 _, it is obtained here first
+		142_情報利得を最大化する分割結果を探索する
+		143_分岐につかう特徴量の次元をランダムに決定
+145_[1/50]gain = -0.417651
+145_[2/50]gain = -0.417651
+145_[3/50]gain = -0.417651
+145_[4/50]gain = -0.417651
+145_[5/50]gain = -0.417651
+145_[6/50]gain = -0.417651
+145_[7/50]gain = -0.417651
+145_[8/50]gain = -0.417651
+145_[9/50]gain = -0.417651
+145_[10/50]gain = -0.417651
+145_[11/50]gain = -0.417651
+145_[12/50]gain = -0.417651
+145_[13/50]gain = -0.417651
+145_[14/50]gain = -0.417651
+145_[15/50]gain = -0.417651
+145_[16/50]gain = -0.417651
+145_[17/50]gain = -0.417651
+145_[18/50]gain = -0.417651
+145_[19/50]gain = -0.417651
+145_[20/50]gain = -0.417651
+145_[21/50]gain = -0.417651
+145_[22/50]gain = -0.417651
+145_[23/50]gain = -0.417651
+145_[24/50]gain = -0.417651
+145_[25/50]gain = 0
+145_[26/50]gain = 0
+145_[27/50]gain = 0
+145_[28/50]gain = 0
+145_[29/50]gain = 0
+145_[30/50]gain = 0
+145_[31/50]gain = 0
+145_[32/50]gain = 0
+145_[33/50]gain = 0
+145_[34/50]gain = 0
+145_[35/50]gain = 0
+145_[36/50]gain = 0
+145_[37/50]gain = 0
+145_[38/50]gain = 0
+145_[39/50]gain = 0
+145_[40/50]gain = 0
+145_[41/50]gain = 0
+145_[42/50]gain = 0
+145_[43/50]gain = 0
+145_[44/50]gain = 0
+145_[45/50]gain = 0
+145_[46/50]gain = 0
+145_[47/50]gain = 0
+145_[48/50]gain = 0
+145_[49/50]gain = 0
+145_[50/50]gain = 0
+
+		146_Save best parameters to node
+		147 _ Check if it reached the terminal node this time
+		148_Since it reached end node, securing memory for histogram
+		leaf node !
+		*Tree::build:再帰処理で Node の階層を生成する関数．:1
+		140_特徴量の次元数．ちょっとダサいが，サンプル中の特徴量の次元数を参照する
+		特徴量の次元数=25
+		Since the maximum value and the minimum value of each dimension of the feature quantity are necessary in the threshold value random generation after 141 _, it is obtained here first
+		142_情報利得を最大化する分割結果を探索する
+		143_分岐につかう特徴量の次元をランダムに決定
+145_[1/50]gain = 0
+145_[2/50]gain = 0
+145_[3/50]gain = 0
+145_[4/50]gain = 0
+145_[5/50]gain = 0
+145_[6/50]gain = 0
+145_[7/50]gain = 0
+145_[8/50]gain = 0
+145_[9/50]gain = 0
+145_[10/50]gain = 0
+145_[11/50]gain = 0
+145_[12/50]gain = 0
+145_[13/50]gain = 0
+145_[14/50]gain = 0
+145_[15/50]gain = 0
+145_[16/50]gain = 0
+145_[17/50]gain = 0
+145_[18/50]gain = 0
+145_[19/50]gain = 0
+145_[20/50]gain = 0
+145_[21/50]gain = 0
+145_[22/50]gain = 0
+145_[23/50]gain = 0
+145_[24/50]gain = 0
+145_[25/50]gain = 0
+145_[26/50]gain = 0
+145_[27/50]gain = 0
+145_[28/50]gain = 0
+145_[29/50]gain = 0
+145_[30/50]gain = 0
+145_[31/50]gain = 0
+145_[32/50]gain = 0
+145_[33/50]gain = 0
+145_[34/50]gain = 0
+145_[35/50]gain = 0
+145_[36/50]gain = 0
+145_[37/50]gain = 0
+145_[38/50]gain = 0
+145_[39/50]gain = 0
+145_[40/50]gain = 0
+145_[41/50]gain = 0
+145_[42/50]gain = 0
+145_[43/50]gain = 0
+145_[44/50]gain = 0
+145_[45/50]gain = 0
+145_[46/50]gain = 0
+145_[47/50]gain = 0
+145_[48/50]gain = 0
+145_[49/50]gain = 0
+145_[50/50]gain = 0
+
+		146_Save best parameters to node
+		147 _ Check if it reached the terminal node this time
+		148_Since it reached end node, securing memory for histogram
+		leaf node !
+	15_ Create a histogram of the terminal nodes of the decision tree
+		Tree::BuildHistogramsFunction: A function that generates a histogram of a terminal node by learning data using a constructed decision tree structure:11
+		Clear the histogram of all the terminal nodes to zero
+		Vote the learning data one by one on the histogram
+		Normalize the histogram of all the terminal nodes
+2_Saving the learning result
+＊Forest::Save： Forest 全体を保存する．:3＊
