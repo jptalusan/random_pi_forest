@@ -6,41 +6,51 @@
 #include <unistd.h>
 #include <float.h>
 #include <algorithm>
-#include "SCP_utils.hpp"
+#include "utils.hpp"
 #include "rts_forest.hpp"
 #include "rts_tree.hpp"
 
 //#define DEBUG
 int train();
-std::vector<RTs::Sample> getSamples();
 int getClassNumberFromHistogram(int numberOfClasses, const float* histogram);
 void distributedTest();
 void centralizedTest();
 
 int main(int argc, char *argv[]){
-	//
-	// サンプルデータの読み込み
-	//
-
 	if (argc < 2) {
 		std::cout << "rf_exe [test|train (cent|dist)]" << std::endl;
 	} else {
 		std::string arg1(argv[1]);
 		std::string arg2 = "";
-		if (argc == 3) {
-			std::string arg2 = argv[2];
+		if (argc > 2) {
+			arg2 = argv[2];
 		}
+		Utils::Timer* t = new Utils::Timer();
+		std::cout << argc << ": " << arg1 << " " << arg2 << " " << std::endl;
 		if (arg1 == "train") {
+			t->start();
 			train();
+			t->stop();
 		} else if (arg1 == "test" && arg2 == "dist" && argc == 3) {
+			t->start();
 			distributedTest();
+			t->stop();
 		} else if (arg1 == "test" && arg2 == "cent" && argc == 3) {
+			t->start();
 			centralizedTest();
+			t->stop();
 		} else {
 			std::cout << "rf_exe [test|train]" << std::endl;
 		}
+		delete t;
 	}
 	return 0;
+}
+
+std::vector<RTs::Sample> getSamples() {
+	Utils::Parser *p = new Utils::Parser();
+	p->setClassColumn(1);
+	return p->readCSVToSamples("cleaned.csv");
 }
 
 void centralizedTest() {
@@ -105,6 +115,7 @@ void distributedTest() {
 	//todo: process the rts_forest, load fxn already created the node
 	// read the csv file here
 	std::vector<RTs::Sample> samples = getSamples();
+	
 
 	//Too many loops for testing
 	//Need to change checkScores func to just accept the samples vector (too large? const)
@@ -153,12 +164,7 @@ int train() {
 	getcwd(dir,255);
 	std::cout << dir << std::endl;
 
-	Utils::Parser *p = new Utils::Parser();
-	p->setClassColumn(1);
-	std::vector<RTs::Sample> samples = p->readCSVToSamples("cleaned.csv");
-
-	//std::vector<RTs::Sample> samples = getSamples();
-
+	std::vector<RTs::Sample> samples = getSamples();
 	//
 	// Randomized Forest 生成
 	//
@@ -172,7 +178,7 @@ int train() {
 
 	std::cout << "1_Randomized Forest generation" << std::endl;
 	RTs::Forest rts_forest;
-	if(!rts_forest.Learn(10, 5, 10, 50, 5, 1.0f, samples)){
+	if(!rts_forest.Learn(9, 5, 10, 50, 5, 1.0f, samples)){
 		printf("Randomized Forest Failed generation\n");
 		std::cerr << "RTs::Forest::Learn() failed." << std::endl;
 		std::cerr.flush();
