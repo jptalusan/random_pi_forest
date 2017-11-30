@@ -6,10 +6,9 @@
 #include <unistd.h>
 #include <float.h>
 #include <algorithm>
-#include "SCP_utils.hpp"
+#include "utils.hpp"
 #include "rts_forest.hpp"
 #include "rts_tree.hpp"
-//#include "csv.h"
 
 //#define DEBUG
 int train();
@@ -26,7 +25,11 @@ int main(int argc, char *argv[]){
         getcwd(dir,255);
         std::cout << dir << std::endl;
         std::cout << argc << argv[0] << std::endl;
+        Utils::Timer* t = new Utils::Timer();
+        t->start();
         train();
+        t->stop();
+        delete t;
         return 0;
 }
 
