@@ -33,7 +33,7 @@ int main(int argc, char *argv[]){
 //TODO: make arguments adjustable via argv and transfer code to pi to start distribution
 int train() {
         Utils::Parser *p = new Utils::Parser();
-        p->setClassColumn(25);
+        p->setClassColumn(1);
         p->setDelimiter(',');
         std::vector<RTs::Sample> samples;
         //samples = p->readCSVToSamples("cleaned.csv");
