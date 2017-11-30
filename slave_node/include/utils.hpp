@@ -3,6 +3,7 @@
 #include <string>
 #include <map>
 #include "rts_sample.hpp"
+#include <chrono>
 
 namespace Utils {
     class Parser {
@@ -161,6 +162,24 @@ namespace Utils {
             std::cout << std::endl << "Score: " << score << " / " << consolidated.size() << std::endl;
             float f = (float)score / (float)consolidated.size();
             std::cout << f << std::endl;
+        }
+    };
+
+    class Timer {
+    private:
+        std::chrono::high_resolution_clock::time_point startTime;
+        std::chrono::high_resolution_clock::time_point endTime;
+    public:
+        void start() {
+            startTime = std::chrono::high_resolution_clock::now();
+            // std::cout << startTime.str() << std::endl;
+        }
+
+        void stop() {
+            endTime = std::chrono::high_resolution_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+            // std::cout << endTime.str() << std::endl;
+            std::cout << "Total time spent: " << duration << std::endl;
         }
     };
 }
