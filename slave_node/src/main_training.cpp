@@ -11,7 +11,6 @@
 #include "rts_tree.hpp"
 //#include "csv.h"
 
-#define CSV_IO_NO_THREAD
 //#define DEBUG
 int train();
 std::vector<RTs::Sample> getSamples();
@@ -23,6 +22,9 @@ int main(int argc, char *argv[]){
         //
         // サンプルデータの読み込み
         //
+        char dir[255];
+        getcwd(dir,255);
+        std::cout << dir << std::endl;
         std::cout << argc << argv[0] << std::endl;
         train();
         return 0;
@@ -33,9 +35,9 @@ int train() {
         Utils::Parser *p = new Utils::Parser();
         p->setClassColumn(1);
         p->setDelimiter(',');
-        //std::vector<RTs::Sample> samples = p->readCSVToSamples("/home/pi/RandomForest_for_smart_home_data/data/data.txt")
         std::vector<RTs::Sample> samples;
-        samples = p->readCSVToSamples("cleaned.csv");
+        //samples = p->readCSVToSamples("cleaned.csv");
+        samples = p->readCSVToSamples("/home/pi/random_pi_forest/slave_node/data/data.txt");
         std::cout << samples[4].label << std::endl;
         //
         // Randomized Forest 生成
