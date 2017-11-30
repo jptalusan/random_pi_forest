@@ -56,7 +56,7 @@ std::vector<std::string> bufferTest(std::string fileName) {
 bool sendFileViaScp(std::string filename, int count) {
     //scp -rv test2.txt pi@163.221.68.203:/home/pi/
     std::stringstream ss;
-    ss << filename << " pi@" << nodeList[count] << ":/home/pi/RandomForest_for_smart_home_data/data/data.txt";
+    ss << filename << " pi@" << nodeList[count] << ":/home/pi/random_pi_forest/slave_node/data/data.txt";
     std::string command = "scp -rv " + ss.str();
     //std::cout << command << std::endl;
     system(command.c_str());
@@ -102,9 +102,8 @@ void populateNodeList(std::string fileName) {
         std::istringstream iss(line);
         std::string node;
         if (!(iss >> node)) { break; } // error
-        std::cout << node << std::endl;
-        //nodeList.push_back(node);
-        // process pair (a,b)
+        // std::cout << node << std::endl;
+        nodeList.push_back(node);
     }
 }
 
@@ -130,6 +129,6 @@ int main(int argc, char* argv[]) {
  
     std::shuffle(v.begin(), v.end(), g);
     concurrentReads(numberOfNodes, data, v);
-    
+
     return 0;
 }
