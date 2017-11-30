@@ -114,6 +114,17 @@ int main(int argc, char* argv[]) {
         arg1 = argv[1];
         arg2 = argv[2];
         populateNodeList(arg2);
+    } else if (argc == 4) {
+
+        arg1 = argv[1];
+        arg2 = argv[2];
+        populateNodeList(arg2);
+        std::for_each(nodeList.begin(), nodeList.end(), [&](std::string s){
+            std::string command = "scp -rv " + arg1 + " pi@" + s + ":/home/pi/random_pi_forest/slave_node/data/data.txt";
+            std::cout << command << std::endl;
+            system(command.c_str());
+        });
+        return 0;
     } else {
         std::cout << "./exe filename.csv nodeList.txt" << std::endl;
         return 0;
