@@ -1,10 +1,14 @@
 # random_pi_forest
 Trying to setup distributed random forest for Pi
+needs git, cmake, make and g++ with c++11
 
 Slave Node: Generates a random forest from the training data
 cmake .
 make
 ./src/rf_exe
+Need to adjust what column the class label is,
+and what type of delimiter is used.
+This assumes that the data file is split by new lines.
 
 Master:
 Sends training data to the slave nodes after splitting up
