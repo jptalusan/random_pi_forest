@@ -2,6 +2,7 @@
 Trying to setup distributed random forest for Pi
 
 Slave Node: Generates a random forest from the training data
+cmake .
 make
 ./src/rf_exe
 
