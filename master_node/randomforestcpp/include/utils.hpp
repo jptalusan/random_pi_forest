@@ -16,15 +16,6 @@ namespace Utils {
         }
 
         std::vector<RTs::Sample> readCSVToSamples(std::string fileName) {
-            std::ifstream ifs(fileName, std::ifstream::binary);
-            std::filebuf* pbuf = ifs.rdbuf();
-            std::size_t size = pbuf->pubseekoff(0, ifs.end, ifs.in);
-            pbuf->pubseekpos (0, ifs.in);
-            std::cout << size << std::endl;
-            char* buffer = new char[size];
-            pbuf->sgetn (buffer, size);
-            ifs.close();
-
             //int lines = std::count(buffer, buffer + size, '\n');
             // std::cout.write (buffer, size);
 
