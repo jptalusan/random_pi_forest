@@ -92,7 +92,7 @@ namespace Utils {
             for(unsigned int i = 0; i < nodeList.size(); i++) {
                 // std::cout << "Hello" << std::endl;
                 ss.str(std::string());
-                ss << "scp pi@" << nodeList[i] << ":/home/pi/RandomForest_for_smart_home_data/RTs_Forest.txt ./RTs_Forest_" <<  i << ".txt";
+                ss << "scp pi@" << nodeList[i] << ":/home/pi/random_pi_forest/slave_node/RTs_Forest.txt ./RTs_Forest_" <<  i << ".txt";
                 std::string command = ss.str();
                 //std::cout << command << std::endl;
                 system(command.c_str());
@@ -104,7 +104,7 @@ namespace Utils {
             for(unsigned int i = 0; i < nodeList.size(); i++) {
                 // std::cout << "Hello" << std::endl;
                 ss.str(std::string());
-                ss << "ssh pi@" << nodeList[i] << " ""rm -f /home/pi/RandomForest_for_smart_home_data/data/data.txt /home/pi/RandomForest_for_smart_home_data/RTs_Forest.txt";
+                ss << "ssh pi@" << nodeList[i] << " ""rm -f /home/pi/random_pi_forest/slave_node/data/data.txt /home/pi/random_pi_forest/slave_node/RTs_Forest.txt";
                 std::string command = ss.str();
                 //std::cout << command << std::endl;
                 system(command.c_str());

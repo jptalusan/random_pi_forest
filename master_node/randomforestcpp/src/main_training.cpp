@@ -85,14 +85,14 @@ void centralizedTest() {
 void distributedTest() {
 	std::vector<std::string> nodeList = {
 		"163.221.68.236",
-		"163.221.68.203",
-		"163.221.68.234"
+		"163.221.68.245",
+		"163.221.68.246"
 	};
 
 	Utils::SCP *u = new Utils::SCP();
 	u->setNodeList(nodeList);
 	u->getFiles();
-	u->deleteFiles();
+	//u->deleteFiles();
 	
 	//Have to loop through all of the node list
 	std::vector<std::vector<int>> scoreVectors;
@@ -138,7 +138,7 @@ void distributedTest() {
 
  	Utils::TallyScores *ts = new Utils::TallyScores();
  	ts->checkScores(correctLabel, scoreVectors);
- 	u->deleteLocalFiles();
+ 	//u->deleteLocalFiles();
  	delete u;
  	delete ts;
 }
