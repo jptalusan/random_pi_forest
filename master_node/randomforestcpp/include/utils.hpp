@@ -4,8 +4,79 @@
 #include <map>
 #include "rts_sample.hpp"
 #include <chrono>
+#include "../../../libs/json.hpp"
+#include <fstream>
 
 namespace Utils {
+    class Configs {
+    public:
+        std::vector<std::string> nodeList;
+        int numClass;
+        int numTrees;
+        int maxDepth;
+        int featureTrials;
+        int thresholdTrials;
+        float dataPerTree;
+
+        void setNodeList(const std::vector<std::string>& nodeList) {
+            this->nodeList = nodeList;
+        }
+
+        void setNumTrees(int numTrees) {
+            this->numTrees = numTrees;
+        }        
+
+        void setNumClass(int numClass) {
+            this->numClass = numClass;
+        }
+
+        void setMaxDepth(int maxDepth) {
+            this->maxDepth = maxDepth;
+        }
+
+        void setFeatureTrials(int featureTrials) {
+            this->featureTrials = featureTrials;
+        }
+
+        void setThresholdTrials(int thresholdTrials) {
+            this->thresholdTrials = thresholdTrials;
+        }
+
+        void setDataPerTree(float dataPerTree) {
+            this->dataPerTree = dataPerTree;
+        }
+    };
+    
+    class Json {
+    public:
+        using json = nlohmann::json;
+        
+        Configs parseJsonFile(std::string filename) {
+            Configs c;
+
+            std::ifstream jsonFile(filename, std::ios::in);
+            json j;
+            jsonFile >> j;
+
+            std::cout << std::setw(4) << j << std::endl;
+            
+            c.setNodeList(j["nodeList"]);
+            c.setNumClass(j["numClass"]);
+            
+            c.setNumTrees(j["numTrees"]);
+            c.setMaxDepth(j["maxDepth"]);
+            c.setFeatureTrials(j["featureTrials"]);
+            c.setThresholdTrials(j["thresholdTrials"]);
+
+            c.setDataPerTree(j["dataPerTree"]);
+
+            //c.setDataPerTree(std::stof(s, &sz));
+
+            // std::cout << c.numClass << std::endl;
+            return c;
+        }
+    };
+
     class Parser {
     private:
         int numberOfFeatures = -1;
@@ -61,7 +132,6 @@ namespace Utils {
                 }
                 samples.push_back(sample);
             }
-            delete[] buffer;
             return samples;
         }
     };
@@ -178,7 +248,7 @@ namespace Utils {
             endTime = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
             // std::cout << endTime.str() << std::endl;
-            std::cout << "Total time spent: " << duration << std::endl;
+            std::cout << "Total time spent (ms): " << duration << std::endl;
         }
     };
 }

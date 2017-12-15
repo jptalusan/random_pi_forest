@@ -214,13 +214,17 @@ Node *Tree::build(const int maxDepth,
 		}
 
 		//std::cout << "		145_最適な分岐関数を探しています"
+#ifdef DEBUG
 		std::cout<< "145_[" << ft+1 << "/" << featureTrials << "]" << "gain = " << bestGain << "\r\n";
 		std::cout.flush();
+#endif
 	}
+#ifdef DEBUG
 	std::cout << std::endl;
 
 	// 最良だったパラメータをノードに保存
 	std::cout << "		146_Save best parameters to node" << std::endl;
+#endif
 	Node *node = new Node();
 	node->feature_id = bestFeature;
 	node->threshold = bestThreshold;
@@ -228,17 +232,23 @@ Node *Tree::build(const int maxDepth,
 	//
 	// 今回で末端ノードに到達したかどうかチェック
 	//
+#ifdef DEBUG
 	std::cout << "		147 _ Check if it reached the terminal node this time" << std::endl;
+#endif
 	if(-FLT_MIN < bestGain || maxDepth < depth || bestlSamples.empty() || bestrSamples.empty()){
 		// 末端ノードに到達したので，ヒストグラム用のメモリを確保．
 		// (Since the contents of the histogram will be generated later, we do not mind here)
+#ifdef DEBUG
 		std::cout << "		148_Since it reached end node, securing memory for histogram" << std::endl;
 		std::cout << "		leaf node !" << std::endl;
+#endif
 		node->distribution = new float[numClass];
 	}
 	else{
 		// Since it is still a branch node, it creates child nodes
+#ifdef DEBUG
 		std::cout << "		149_まだ分岐ノードなので，子ノードを生成する" << std::endl;
+#endif
 		node->lChild = build(maxDepth, featureTrials, thresholdTrials, bestlSamples, inverse_label_freq, depth+1);
 		node->rChild = build(maxDepth, featureTrials, thresholdTrials, bestrSamples, inverse_label_freq, depth+1);
 		if(node->lChild == NULL || node->rChild == NULL){
