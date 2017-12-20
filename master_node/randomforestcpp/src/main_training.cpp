@@ -3,12 +3,18 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <cstring>
 #include <unistd.h>
 #include <float.h>
 #include <algorithm>
 #include "utils.hpp"
 #include "rts_forest.hpp"
 #include "rts_tree.hpp"
+#include "concurrency.h"
+#include "mosqrf.h"
+
+#include <sys/types.h>
+#include <dirent.h>
 
 //#define DEBUG
 int train(Utils::Configs c);
@@ -20,6 +26,54 @@ int main(int argc, char *argv[]){
     Utils::Json *json = new Utils::Json();
     Utils::Configs c = json->parseJsonFile("configs.json");
 
+    //concurrency test
+    std::vector<std::string> data = readFileToBuffer("cleaned.csv");
+    int numberOfNodes = c.nodeList.size();
+    std::vector<int> v(data.size());
+    std::iota(v.begin(), v.end(), 0);
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(v.begin(), v.end(), g);
+    
+    concurrentReads(numberOfNodes, data, v);
+    //end concurrency test code
+
+    //Testing directory scraper
+    std::vector<std::string> files;
+    std::string name = ".";
+    DIR* dirp = opendir(name.c_str());
+    struct dirent * dp;
+    while ((dp = readdir(dirp)) != NULL) {
+        //std::cout << dp->d_name;
+        std::string s(dp->d_name);
+        if (s.find("data") != std::string::npos)
+            files.push_back(s);
+    }
+    closedir(dirp);
+    //end scraper
+    
+    //Read dataN.txt files to buffer and publish via MQTT.
+    //send to master topic in localhost
+    std::string host = "localhost";
+    std::string id = "testing";
+    std::string topic = "master";
+    int port = 1883;
+    const std::string message = "testing!";
+    myMosq* mymosq = new myMosq(id.c_str(), topic.c_str(), host.c_str(), port);
+
+    int index = 0;
+    for (auto s : files) {
+        std::cout << s << std::endl;
+        char* buffer = fileToBuffer(s);
+        std::stringstream ss;
+        ss << "slave/node" << index;
+        mymosq->send_message(ss.str().c_str(), buffer);
+        delete[] buffer;
+        ++index;
+    }
+    //End of MQTT
+
+/*
     if (argc < 2) {
         std::cout << "rf_exe [test|train (cent|dist)]" << std::endl;
     } else {
@@ -47,6 +101,7 @@ int main(int argc, char *argv[]){
         }
         delete t;
     }
+*/
     return 0;
 }
 

@@ -1,3 +1,6 @@
+#ifndef UTILS_HPP
+#define UTILS_HPP
+
 #include <iostream>
 #include <algorithm>
 #include <string>
@@ -6,6 +9,9 @@
 #include <chrono>
 #include "../../../libs/json.hpp"
 #include <fstream>
+#include <string.h>
+#include <sstream>
+#include <unistd.h>
 
 namespace Utils {
     class Configs {
@@ -251,4 +257,7 @@ namespace Utils {
             std::cout << "Total time spent (ms): " << duration << std::endl;
         }
     };
+
 }
+
+#endif
