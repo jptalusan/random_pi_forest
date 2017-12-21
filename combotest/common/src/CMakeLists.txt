@@ -1,6 +1,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
-
-add_library(common concurrency.cpp rts_tree.cpp rts_forest.cpp)
+file(GLOB SOURCE_FILES "*.cpp")
+add_library(common ${SOURCE_FILES})
 
 install(TARGETS common
     LIBRARY DESTINATION lib

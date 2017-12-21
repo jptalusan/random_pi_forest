@@ -13,6 +13,7 @@
 #include "mosqrf.h"
 #include <sys/types.h>
 #include <dirent.h>
+#include "myMosqConcrete.h"
 
 //#define DEBUG
 int train();
@@ -25,7 +26,7 @@ void mqtt_subscriber_thread(std::string host, std::string topic) {
     std::string id = "sub";
     int port = 1883;
     const std::string message = "subscribe";
-    myMosq* mymosq = new myMosq(id.c_str(), topic.c_str(), host.c_str(), port);
+    myMosq* mymosq = new myMosqConcrete(id.c_str(), topic.c_str(), host.c_str(), port);
     mymosq->subscribe_to_topic();
     mymosq->loop_start();
     while(1) {
@@ -34,7 +35,6 @@ void mqtt_subscriber_thread(std::string host, std::string topic) {
 }
 
 int main(int argc, char *argv[]){
-
     Utils::Json *json = new Utils::Json();
     Utils::Configs c = json->parseJsonFile("configs.json");
 
@@ -72,7 +72,7 @@ int main(int argc, char *argv[]){
     std::string topic = "master";
     int port = 1883;
     const std::string message = "testing!";
-    myMosq* mymosq = new myMosq(id.c_str(), topic.c_str(), host.c_str(), port);
+    myMosq* mymosq = new myMosqConcrete(id.c_str(), topic.c_str(), host.c_str(), port);
 
     int index = 0;
     for (auto s : files) {

@@ -40,10 +40,16 @@ void myMosq::on_publish(int mid) {
     //delete message;
     }
 
-bool myMosq::receive_message() {
+/*
+bool myMosq::receive_message(const struct mosquitto_message *message) {
     std::cout << "Received message()" << std::endl;
+    char* pchar = (char*)(message->payload);
+    std::string str(pchar);
+    std::cout << "Message from broker: " << str << std::endl;
+    mqttif->receive_message();
     return true;
 }
+*/
 
 /*
 struct mosquitto_message{
@@ -56,10 +62,8 @@ struct mosquitto_message{
 };
 */
 void myMosq::on_message(const struct mosquitto_message *message) {
-    char* pchar = (char*)(message->payload);
-    std::string str(pchar);
-    std::cout << "Message from broker: " << str << std::endl;
-
+    receive_message(message);
+    /*
     std::string topic(message->topic);
 
     //This is where we handle messages received from subscription
@@ -74,6 +78,7 @@ void myMosq::on_message(const struct mosquitto_message *message) {
         std::string reply = "ACK";
         publish(NULL, "slave/node1", reply.length(), reply.c_str(), 1, false);
     }
+    */
 }
 
 void myMosq::on_subscribe(int mid, int qos_count, const int* granted_qos) {
@@ -96,7 +101,6 @@ std::string GetCurrentWorkingDir( void ) {
   std::string current_working_dir(buff);
   return current_working_dir;
 }
-
 
 void writeToFile(const char* buffer, std::string fileName) {
     std::stringstream ss;

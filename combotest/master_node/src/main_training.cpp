@@ -14,6 +14,7 @@
 #include "mosqrf.h"
 #include <sys/types.h>
 #include <dirent.h>
+#include "myMosqConcrete.h"
 
 //#define DEBUG
 int train(Utils::Configs c);
@@ -25,7 +26,7 @@ void mqtt_subscriber_thread(std::string host, std::string topic) {
     std::string id = "sub";
     int port = 1883;
     const std::string message = "subscribe";
-    myMosq* mymosq = new myMosq(id.c_str(), topic.c_str(), host.c_str(), port);
+    myMosq* mymosq = new myMosqConcrete(id.c_str(), topic.c_str(), host.c_str(), port);
     mymosq->subscribe_to_topic();
     mymosq->loop_start();
     while(1) {
@@ -57,7 +58,8 @@ int main(int argc, char *argv[]){
     while ((dp = readdir(dirp)) != NULL) {
         //std::cout << dp->d_name;
         std::string s(dp->d_name);
-        if (s.find("data") != std::string::npos)
+        if (s.find("data") != std::string::npos &&
+            s.find(".txt") != std::string::npos)
             files.push_back(s);
     }
     closedir(dirp);
@@ -70,7 +72,7 @@ int main(int argc, char *argv[]){
     std::string topic = "master";
     int port = 1883;
     const std::string message = "testing!";
-    myMosq* mymosq = new myMosq(id.c_str(), topic.c_str(), host.c_str(), port);
+    myMosq* mymosq = new myMosqConcrete(id.c_str(), topic.c_str(), host.c_str(), port);
 
     int index = 0;
     for (auto s : files) {

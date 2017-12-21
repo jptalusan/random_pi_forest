@@ -9,6 +9,7 @@
 #include <fstream>
 #include <algorithm>
 #define GetCurrentDir getcwd
+#include "mqttInterface.h"
 
 class myMosq : public mosqpp::mosquittopp {
     private:
@@ -33,7 +34,7 @@ class myMosq : public mosqpp::mosquittopp {
         myMosq(const char* id, const char* _topic, const char* host, int port);
         ~myMosq();
         bool send_message(const char* topic, const char* _message);
-        bool receive_message();
+        virtual bool receive_message(const struct mosquitto_message* message) = 0;
         bool subscribe_to_topic();
 };
 
