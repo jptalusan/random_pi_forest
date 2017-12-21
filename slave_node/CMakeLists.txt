@@ -1,7 +1,5 @@
 project(randomForests)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-#add this line to add linker flags at the end
-#set(GCC_COVERAGE_LINK_FLAGS "-lpthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 cmake_minimum_required(VERSION 2.8)
 include(CheckCXXCompilerFlag)
 
@@ -19,6 +17,10 @@ endfunction()
 enable_cxx_compiler_flag_if_supported("-Wall")
 enable_cxx_compiler_flag_if_supported("-Wextra")
 enable_cxx_compiler_flag_if_supported("-pedantic")
+enable_cxx_compiler_flag_if_supported("-lmosquittopp")
 enable_cxx_compiler_flag_if_supported("-lpthread")
+enable_cxx_compiler_flag_if_supported("-O2")
+enable_cxx_compiler_flag_if_supported("-ggdb")
+
 include_directories(include)
 add_subdirectory(src)

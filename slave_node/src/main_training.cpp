@@ -9,6 +9,10 @@
 #include "utils.hpp"
 #include "rts_forest.hpp"
 #include "rts_tree.hpp"
+#include "concurrency.h"
+#include "mosqrf.h"
+#include <sys/types.h>
+#include <dirent.h>
 
 //#define DEBUG
 int train();
@@ -17,7 +21,78 @@ int getClassNumberFromHistogram(int numberOfClasses, const float* histogram);
 void distributedTest();
 void centralizedTest();
 
+void mqtt_subscriber_thread(std::string host, std::string topic) {
+    std::string id = "sub";
+    int port = 1883;
+    const std::string message = "subscribe";
+    myMosq* mymosq = new myMosq(id.c_str(), topic.c_str(), host.c_str(), port);
+    mymosq->subscribe_to_topic();
+    mymosq->loop_start();
+    while(1) {
+        //infinite loop
+    }
+}
+
 int main(int argc, char *argv[]){
+
+    Utils::Json *json = new Utils::Json();
+    Utils::Configs c = json->parseJsonFile("configs.json");
+
+    //concurrency test
+    std::vector<std::string> data = readFileToBuffer("cleaned.csv");
+    int numberOfNodes = c.nodeList.size();
+    std::vector<int> v(data.size());
+    std::iota(v.begin(), v.end(), 0);
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(v.begin(), v.end(), g);
+    
+    concurrentReads(numberOfNodes, data, v);
+    //end concurrency test code
+
+    //Testing directory scraper
+    std::vector<std::string> files;
+    std::string name = ".";
+    DIR* dirp = opendir(name.c_str());
+    struct dirent * dp;
+    while ((dp = readdir(dirp)) != NULL) {
+        //std::cout << dp->d_name;
+        std::string s(dp->d_name);
+        if (s.find("data") != std::string::npos &&
+            s.find(".txt") != std::string::npos)
+            files.push_back(s);
+    }
+    closedir(dirp);
+    //end scraper
+
+    //Read dataN.txt files to buffer and publish via MQTT.
+    //send to master topic in localhost
+    std::string host = "localhost";
+    std::string id = "testing";
+    std::string topic = "master";
+    int port = 1883;
+    const std::string message = "testing!";
+    myMosq* mymosq = new myMosq(id.c_str(), topic.c_str(), host.c_str(), port);
+
+    int index = 0;
+    for (auto s : files) {
+        std::cout << s << std::endl;
+        char* buffer = fileToBuffer(s);
+        std::stringstream ss;
+        ss << "slave/node" << index;
+        //send_message(topic, message)
+        mymosq->send_message(ss.str().c_str(), buffer);
+        delete[] buffer;
+        ++index;
+    }
+    //End of MQTT
+
+    //MQTT Subscriber loop
+    std::thread t1(mqtt_subscriber_thread, "localhost", "master");
+    t1.join();
+    //end of subscriber
+
+/*
         //
         // サンプルデータの読み込み
         //
@@ -30,6 +105,7 @@ int main(int argc, char *argv[]){
         train();
         t->stop();
         delete t;
+*/
         return 0;
 }
 

@@ -125,6 +125,33 @@ rf_exe/fast:
 	cd /home/pi/random_pi_forest/slave_node && $(MAKE) -f src/CMakeFiles/rf_exe.dir/build.make src/CMakeFiles/rf_exe.dir/build
 .PHONY : rf_exe/fast
 
+concurrency.o: concurrency.cpp.o
+
+.PHONY : concurrency.o
+
+# target to build an object file
+concurrency.cpp.o:
+	cd /home/pi/random_pi_forest/slave_node && $(MAKE) -f src/CMakeFiles/rf_exe.dir/build.make src/CMakeFiles/rf_exe.dir/concurrency.cpp.o
+.PHONY : concurrency.cpp.o
+
+concurrency.i: concurrency.cpp.i
+
+.PHONY : concurrency.i
+
+# target to preprocess a source file
+concurrency.cpp.i:
+	cd /home/pi/random_pi_forest/slave_node && $(MAKE) -f src/CMakeFiles/rf_exe.dir/build.make src/CMakeFiles/rf_exe.dir/concurrency.cpp.i
+.PHONY : concurrency.cpp.i
+
+concurrency.s: concurrency.cpp.s
+
+.PHONY : concurrency.s
+
+# target to generate assembly for a file
+concurrency.cpp.s:
+	cd /home/pi/random_pi_forest/slave_node && $(MAKE) -f src/CMakeFiles/rf_exe.dir/build.make src/CMakeFiles/rf_exe.dir/concurrency.cpp.s
+.PHONY : concurrency.cpp.s
+
 main_training.o: main_training.cpp.o
 
 .PHONY : main_training.o
@@ -151,6 +178,33 @@ main_training.s: main_training.cpp.s
 main_training.cpp.s:
 	cd /home/pi/random_pi_forest/slave_node && $(MAKE) -f src/CMakeFiles/rf_exe.dir/build.make src/CMakeFiles/rf_exe.dir/main_training.cpp.s
 .PHONY : main_training.cpp.s
+
+mosqrf.o: mosqrf.cpp.o
+
+.PHONY : mosqrf.o
+
+# target to build an object file
+mosqrf.cpp.o:
+	cd /home/pi/random_pi_forest/slave_node && $(MAKE) -f src/CMakeFiles/rf_exe.dir/build.make src/CMakeFiles/rf_exe.dir/mosqrf.cpp.o
+.PHONY : mosqrf.cpp.o
+
+mosqrf.i: mosqrf.cpp.i
+
+.PHONY : mosqrf.i
+
+# target to preprocess a source file
+mosqrf.cpp.i:
+	cd /home/pi/random_pi_forest/slave_node && $(MAKE) -f src/CMakeFiles/rf_exe.dir/build.make src/CMakeFiles/rf_exe.dir/mosqrf.cpp.i
+.PHONY : mosqrf.cpp.i
+
+mosqrf.s: mosqrf.cpp.s
+
+.PHONY : mosqrf.s
+
+# target to generate assembly for a file
+mosqrf.cpp.s:
+	cd /home/pi/random_pi_forest/slave_node && $(MAKE) -f src/CMakeFiles/rf_exe.dir/build.make src/CMakeFiles/rf_exe.dir/mosqrf.cpp.s
+.PHONY : mosqrf.cpp.s
 
 rts_forest.o: rts_forest.cpp.o
 
@@ -215,9 +269,15 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... rf_exe"
+	@echo "... concurrency.o"
+	@echo "... concurrency.i"
+	@echo "... concurrency.s"
 	@echo "... main_training.o"
 	@echo "... main_training.i"
 	@echo "... main_training.s"
+	@echo "... mosqrf.o"
+	@echo "... mosqrf.i"
+	@echo "... mosqrf.s"
 	@echo "... rts_forest.o"
 	@echo "... rts_forest.i"
 	@echo "... rts_forest.s"

@@ -12,7 +12,6 @@
 #include "rts_tree.hpp"
 #include "concurrency.h"
 #include "mosqrf.h"
-
 #include <sys/types.h>
 #include <dirent.h>
 
@@ -21,6 +20,18 @@ int train(Utils::Configs c);
 int getClassNumberFromHistogram(int numberOfClasses, const float* histogram);
 void distributedTest();
 void centralizedTest();
+
+void mqtt_subscriber_thread(std::string host, std::string topic) {
+    std::string id = "sub";
+    int port = 1883;
+    const std::string message = "subscribe";
+    myMosq* mymosq = new myMosq(id.c_str(), topic.c_str(), host.c_str(), port);
+    mymosq->subscribe_to_topic();
+    mymosq->loop_start();
+    while(1) {
+        //infinite loop
+    }
+}
 
 int main(int argc, char *argv[]){
     Utils::Json *json = new Utils::Json();
@@ -67,12 +78,17 @@ int main(int argc, char *argv[]){
         char* buffer = fileToBuffer(s);
         std::stringstream ss;
         ss << "slave/node" << index;
+        //send_message(topic, message)
         mymosq->send_message(ss.str().c_str(), buffer);
         delete[] buffer;
         ++index;
     }
     //End of MQTT
 
+    //MQTT Subscriber loop
+    std::thread t1(mqtt_subscriber_thread, "localhost", "master");
+    t1.join();
+    //end of subscriber
 /*
     if (argc < 2) {
         std::cout << "rf_exe [test|train (cent|dist)]" << std::endl;

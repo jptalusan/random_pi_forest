@@ -41,11 +41,14 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 build
+build/
 
 Makefile/
 CMakeFiles/
 rf_exe.dir/
 ._*
 *.csv
+data*.txt
+RT*.txt
 slave_node/Makefile
 slave_node/src/Makefile

@@ -109,109 +109,7 @@ void populateNodeList(std::string fileName) {
 }
 
 int main(int argc, char* argv[]) {
-
-    using namespace std;
-
-    const std::string DFLT_SERVER_ADDRESS   { "172.27.0.1:1883" };
-    const std::string DFLT_CLIENT_ID        { "async_publish" };
-
-    const string TOPIC { "hello" };
-
-    const char* PAYLOAD1 = "Hello World!";
-    const char* PAYLOAD2 = "Hi there!";
-    const char* PAYLOAD3 = "Is anyone listening?";
-    const char* PAYLOAD4 = "Someone is always listening.";
-
-    const char* LWT_PAYLOAD = "Last will and testament.";
-
-    const int  QOS = 1;
-
-    const auto TIMEOUT = std::chrono::seconds(10);
-
-    string  address  = (argc > 1) ? string(argv[1]) : DFLT_SERVER_ADDRESS,
-            clientID = (argc > 2) ? string(argv[2]) : DFLT_CLIENT_ID;
-
-    cout << "Initializing for server '" << address << "'..." << endl;
-    mqtt::async_client client(address, clientID);
-
-    Utils::callback cb;
-    client.set_callback(cb);
-
-    mqtt::connect_options conopts;
-    mqtt::message willmsg(TOPIC, LWT_PAYLOAD, 1, true);
-    mqtt::will_options will(willmsg);
-    conopts.set_will(will);
-
-    cout << "  ...OK" << endl;
-
-try {
-        cout << "\nConnecting..." << endl;
-        mqtt::token_ptr conntok = client.connect(conopts);
-        cout << "Waiting for the connection..." << endl;
-        conntok->wait();
-        cout << "  ...OK" << endl;
-
-        // First use a message pointer.
-
-        cout << "\nSending message..." << endl;
-        mqtt::message_ptr pubmsg = mqtt::make_message(TOPIC, PAYLOAD1);
-        pubmsg->set_qos(QOS);
-        client.publish(pubmsg)->wait_for(TIMEOUT);
-        cout << "  ...OK" << endl;
-
-        // Now try with itemized publish.
-
-        cout << "\nSending next message..." << endl;
-        mqtt::delivery_token_ptr pubtok;
-        pubtok = client.publish(TOPIC, PAYLOAD2, strlen(PAYLOAD2), QOS, false);
-        cout << "  ...with token: " << pubtok->get_message_id() << endl;
-        cout << "  ...for message with " << pubtok->get_message()->get_payload().size()
-            << " bytes" << endl;
-        pubtok->wait_for(TIMEOUT);
-        cout << "  ...OK" << endl;
-
-        // Now try with a listener
-
-        cout << "\nSending next message..." << endl;
-        Utils::action_listener listener;
-        pubmsg = mqtt::make_message(TOPIC, PAYLOAD3);
-        pubtok = client.publish(pubmsg, nullptr, listener);
-        pubtok->wait();
-        cout << "  ...OK" << endl;
-
-        // Finally try with a listener, but no token
-
-        cout << "\nSending final message..." << endl;
-        Utils::delivery_action_listener deliveryListener;
-        pubmsg = mqtt::make_message(TOPIC, PAYLOAD4);
-        client.publish(pubmsg, nullptr, deliveryListener);
-
-        while (!deliveryListener.is_done()) {
-            this_thread::sleep_for(std::chrono::milliseconds(100));
-        }
-        cout << "OK" << endl;
-
-        // Double check that there are no pending tokens
-
-        auto toks = client.get_pending_delivery_tokens();
-        if (!toks.empty())
-            cout << "Error: There are pending delivery tokens!" << endl;
-
-        // Disconnect
-        cout << "\nDisconnecting..." << endl;
-        conntok = client.disconnect();
-        conntok->wait();
-        cout << "  ...OK" << endl;
-    }
-    catch (const mqtt::exception& exc) {
-        cerr << exc.what() << endl;
-        return 1;
-    }
-
-
-
-/*
-std::string arg1 = "";
+    std::string arg1 = "";
     std::string arg2 = "";
     if (argc == 3) {
         arg1 = argv[1];
@@ -243,6 +141,5 @@ std::string arg1 = "";
  
     std::shuffle(v.begin(), v.end(), g);
     concurrentReads(numberOfNodes, data, v);
-*/
     return 0;
 }
