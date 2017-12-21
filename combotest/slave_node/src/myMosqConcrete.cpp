@@ -30,7 +30,13 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
     ss << dir << "/RTs_Forest.txt";
     char* buffer = fileToBuffer(ss.str());
 
-    std::string topic("master/node0");
+    std::string topic("master/");
+    topic += c.nodeName;
+
+    //remove "slave/" from part of name (what a hack)
+    int indexToRemove = topic.find("slave/");
+    topic.erase(indexToRemove, 6);
+
     std::cout << "Publishing to topic: " << topic << std::endl;
     this->send_message(topic.c_str(), buffer);
     delete[] buffer;

@@ -8,7 +8,7 @@ void distributedTest();
 void centralizedTest();
 
 void mqtt_subscriber_thread(std::string host, std::string topic, Utils::Configs c) {
-    std::string id = "sub";
+    std::string id = c.nodeName;
     int port = 1883;
     const std::string message = "subscribe";
     myMosq* mymosq = new myMosqConcrete(id.c_str(), topic.c_str(), host.c_str(), port, c);
