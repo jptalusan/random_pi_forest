@@ -22,6 +22,7 @@ int main(int argc, char *argv[]){
     Utils::Json *json = new Utils::Json();
     Utils::Configs c = json->parseJsonFile("configs.json");
 
+    //might need to remove the threading here?
     //concurrency: Divides the csv file according to the number of nodes available
     std::vector<std::string> data = readFileToBuffer("cleaned.csv");
     int numberOfNodes = c.nodeList.size();
@@ -64,8 +65,9 @@ int main(int argc, char *argv[]){
         char* buffer = fileToBuffer(s);
         std::stringstream ss;
         ss << "slave/node" << index;
+        std::cout << "sending to :" << ss.str() << std::endl;
         mymosq->send_message(ss.str().c_str(), buffer);
-        delete[] buffer;
+        //delete[] buffer;
         ++index;
     }
     //End of MQTT
