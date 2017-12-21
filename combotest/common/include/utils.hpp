@@ -23,6 +23,8 @@ namespace Utils {
         int featureTrials;
         int thresholdTrials;
         float dataPerTree;
+        std::string mqttBroker;
+        std::string nodeName;
 
         void setNodeList(const std::vector<std::string>& nodeList) {
             this->nodeList = nodeList;
@@ -51,6 +53,14 @@ namespace Utils {
         void setDataPerTree(float dataPerTree) {
             this->dataPerTree = dataPerTree;
         }
+
+        void setNodeName(std::string nodeName) {
+            this->nodeName = nodeName;
+        }
+
+        void setMqttBroker(std::string mqttBroker) {
+            this->mqttBroker = mqttBroker;
+        }
     };
     
     class Json {
@@ -76,9 +86,8 @@ namespace Utils {
 
             c.setDataPerTree(j["dataPerTree"]);
 
-            //c.setDataPerTree(std::stof(s, &sz));
-
-            // std::cout << c.numClass << std::endl;
+            c.setMqttBroker(j["mqttBroker"]);
+            c.setNodeName(j["nodeName"]);
             return c;
         }
     };

@@ -67,11 +67,10 @@ int main(int argc, char *argv[]){
     
     //Read dataN.txt files to buffer and publish via MQTT.
     //send to master topic in localhost
-    std::string host = "localhost";
+    std::string host = c.mqttBroker;
     std::string id = "testing";
-    std::string topic = "master";
+    std::string topic = " "; //not really needed now
     int port = 1883;
-    const std::string message = "testing!";
     myMosq* mymosq = new myMosqConcrete(id.c_str(), topic.c_str(), host.c_str(), port);
 
     int index = 0;
@@ -80,7 +79,6 @@ int main(int argc, char *argv[]){
         char* buffer = fileToBuffer(s);
         std::stringstream ss;
         ss << "slave/node" << index;
-        //send_message(topic, message)
         mymosq->send_message(ss.str().c_str(), buffer);
         delete[] buffer;
         ++index;
@@ -88,7 +86,8 @@ int main(int argc, char *argv[]){
     //End of MQTT
 
     //MQTT Subscriber loop
-    std::thread t1(mqtt_subscriber_thread, "localhost", "master");
+    //You subscribe to your own node name
+    std::thread t1(mqtt_subscriber_thread, c.mqttBroker, c.nodeName);
     t1.join();
     //end of subscriber
 /*
