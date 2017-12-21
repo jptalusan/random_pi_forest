@@ -8,12 +8,6 @@ myMosqConcrete::myMosqConcrete(const char* id, const char* _topic, const char* h
 }
 
 bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
-    //Doesn't work hahaha
-    if (isProcessing) {
-        return false;
-    }
-
-    isProcessing = true;
     std::cout << "Slave node start processing!" << std::endl;
     char *pchar = (char*)(message->payload);
     writeToFile(pchar, "data.txt");
@@ -35,12 +29,12 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
     std::stringstream ss;
     ss << dir << "/RTs_Forest.txt";
     char* buffer = fileToBuffer(ss.str());
-    std::string topic("master");
+
+    std::string topic("master/node0");
+    std::cout << "Publishing to topic: " << topic << std::endl;
     this->send_message(topic.c_str(), buffer);
     delete[] buffer;
     //End of MQTT
-
-    isProcessing = false;
 
     return true;
 }
