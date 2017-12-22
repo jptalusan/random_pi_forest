@@ -21,11 +21,16 @@ void mqtt_subscriber_thread(myMosq* mymosq) {
 int main(int argc, char *argv[]){
     Utils::Json *json = new Utils::Json();
     Utils::Configs c = json->parseJsonFile("configs.json");
-
+    
+    std::string cmd("sudo batctl o");
+    std::string cmdout = json->exec(cmd.c_str());
+    std::cout << cmdout << std::endl;
     //might need to remove the threading here?
     //concurrency: Divides the csv file according to the number of nodes available
     std::vector<std::string> data = readFileToBuffer("cleaned.csv");
-    int numberOfNodes = c.nodeList.size();
+    //int numberOfNodes = c.nodeList.size();
+    int numberOfNodes = std::count(cmdout.begin(), cmdout.end(), '*');
+
     std::vector<int> v(data.size());
     std::iota(v.begin(), v.end(), 0);
     std::random_device rd;

@@ -3,6 +3,8 @@
 myMosqConcrete::myMosqConcrete(const char* id, const char* _topic, const char* host, int port)
         : myMosq(id, _topic, host, port), publishedNodes(0) {
     std::cout << "Master node mqtt setup" << std::endl;
+    t = Utils::Timer();
+    t.start();
 }
 
 /*
@@ -40,6 +42,7 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
 
     if (publishedNodes.size() == 3) {
         distributedTest();
+        t.stop();
     }
 
     return true;

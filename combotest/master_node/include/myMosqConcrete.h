@@ -22,6 +22,7 @@
 class myMosqConcrete : public myMosq {
     public:
     std::vector<int> publishedNodes;
+    Utils::Timer t;
     myMosqConcrete(const char* id, const char * topic, const char* host, int port);
     bool receive_message(const struct mosquitto_message* message);
     void checkNodePayload(int n, std::string str, std::string topic);
