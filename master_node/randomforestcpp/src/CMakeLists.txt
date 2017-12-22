@@ -1,4 +1,0 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
-
-file(GLOB SOURCE_FILES "*.cpp")
-add_executable(rf_exe ${SOURCE_FILES})

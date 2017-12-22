@@ -1,7 +1,0 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
-file(GLOB SOURCE_FILES "*.cpp")
-add_library(common ${SOURCE_FILES})
-
-install(TARGETS common
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib)
