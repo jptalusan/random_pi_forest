@@ -52,10 +52,9 @@ int main(int argc, char *argv[]){
     //send to master topic in localhost
     std::string host = c.mqttBroker;
     std::string id = "testing";
-    std::string topic = c.nodeName + "/+";
-    std::cout << "Subscribing to " << topic << std::endl;
+    std::cout << "Subscribing to " << c.topic << std::endl;
     int port = 1883;
-    myMosq* mymosq = new myMosqConcrete(id.c_str(), topic.c_str(), host.c_str(), port);
+    myMosq* mymosq = new myMosqConcrete(id.c_str(), c.topic.c_str(), host.c_str(), port);
 
     int index = 0;
     for (auto s : files) {

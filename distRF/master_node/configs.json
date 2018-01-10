@@ -7,5 +7,6 @@
     "thresholdTrials": 5,
     "dataPerTree": 0.25,
     "nodeName": "master",
-    "mqttBroker": "163.221.68.234"
+    "mqttBroker": "163.221.68.234",
+    "topic": "master/+/#"
 }

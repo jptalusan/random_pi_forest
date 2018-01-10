@@ -18,12 +18,8 @@ struct mosquitto_message{
 };
 */
 bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
-    std::cout << "Master node is processing received forests..." << std::endl;
     std::string topic(message->topic);
     std::cout << "Message from broker with topic: " << topic << std::endl;
-    if (topic.find("node") == std::string::npos) {
-        return false;
-    } 
 
     char* pchar = (char*)(message->payload);
     std::string str(pchar);
@@ -41,7 +37,6 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
         std::cout << "Acked" << std::endl;
     }
 
-
     if (publishedNodes.size() == 3) {
         distributedTest();
         t.stop();
@@ -51,6 +46,7 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
 }
 
 void myMosqConcrete::checkNodePayload(int n, std::string str, std::string topic) {
+    std::cout << "Master node is processing received forests..." << std::endl;
     std::stringstream ss;
     ss << "Receiving node " << n << " message...";
     std::cout << ss.str() << std::endl;
