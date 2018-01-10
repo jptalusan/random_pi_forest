@@ -23,7 +23,8 @@ class myMosqConcrete : public myMosq {
     bool isProcessing;
     myMosqConcrete(const char* id, const char * topic, const char* host, int port, Utils::Configs c);
     bool receive_message(const struct mosquitto_message* message);
+    int train();
+    void initiateTraining(const char* message);
 };
-int train(Utils::Configs c);
 
 #endif

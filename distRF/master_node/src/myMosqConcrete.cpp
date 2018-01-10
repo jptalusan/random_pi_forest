@@ -37,6 +37,8 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
         checkNodePayload(1, str, topic);
     } else if (topic.find("node2") != std::string::npos) {
         checkNodePayload(2, str, topic);
+    } else if (topic.find("ack") != std::string::npos) {
+        std::cout << "Acked" << std::endl;
     }
 
 

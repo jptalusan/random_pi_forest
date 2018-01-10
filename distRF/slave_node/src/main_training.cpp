@@ -19,7 +19,7 @@ int main(int argc, char *argv[]){
     Utils::Configs c = json->parseJsonFile("configs.json");
 
     //MQTT Subscriber loop
-    std::thread t1(mqtt_subscriber_thread, c.mqttBroker, c.nodeName, c);
+    std::thread t1(mqtt_subscriber_thread, c.mqttBroker, c.topic, c);
     t1.join();
     //end of subscriber
 

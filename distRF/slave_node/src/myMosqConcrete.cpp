@@ -7,15 +7,42 @@ myMosqConcrete::myMosqConcrete(const char* id, const char* _topic, const char* h
     std::cout << "Setup of mosquitto." << std::endl;
 }
 
+// struct mosquitto_message{
+//         int mid;
+//         char *topic;
+//         void *payload;
+//         int payloadlen;
+//         int qos;
+//         bool retain;
+// }
 bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
     std::cout << "Slave node start processing!" << std::endl;
     char *pchar = (char*)(message->payload);
+    std::string receivedTopic(message->topic);
+    std::string nodeTopic = c.nodeName;
+    std::cout << receivedTopic << std::endl;
+    if (receivedTopic.find("slave/" + this->c.nodeName) != std::string::npos) {
+        initiateTraining(pchar);
+    } else if (receivedTopic.find("flask/mqtt/query") != std::string::npos) {
+        std::stringstream ss;
+        ss << "Response, i'm here" << std::endl;
+        const std::string& tmp = ss.str();
+        const char* cstr = tmp.c_str();
+        std::cout << "Received flask: " + tmp;
+        this->send_message(nodeTopic.c_str(), cstr);
+    }
+    //End of MQTT
+
+    return true;
+}
+
+void myMosqConcrete::initiateTraining(const char* pchar) {
     writeToFile(pchar, "data.txt");
     // サンプルデータの読み込み
     //
     Utils::Timer* t = new Utils::Timer();
     t->start();
-    train(c);
+    train();
     t->stop();
     delete t;
 
@@ -40,14 +67,11 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
     std::cout << "Publishing to topic: " << topic << std::endl;
     this->send_message(topic.c_str(), buffer);
     delete[] buffer;
-    //End of MQTT
-
-    return true;
 }
 
 
 //TODO: make arguments adjustable via argv and transfer code to pi to start distribution
-int train(Utils::Configs c) {
+int myMosqConcrete::train() {
     std::cout << "start training" << std::endl;
     Utils::Parser *p = new Utils::Parser();
     //can also put the class column info into config
@@ -64,12 +88,13 @@ int train(Utils::Configs c) {
 
     std::cout << "1_Randomized Forest generation" << std::endl;
     RTs::Forest rts_forest;
-    if(!rts_forest.Learn(c.numClass,
-                    c.numTrees,
-                    c.maxDepth,
-                    c.featureTrials,
-                    c.thresholdTrials,
-                    c.dataPerTree, 
+    if(!rts_forest.Learn(
+                    this->c.numClass,
+                    this->c.numTrees,
+                    this->c.maxDepth,
+                    this->c.featureTrials,
+                    this->c.thresholdTrials,
+                    this->c.dataPerTree, 
                     samples)){
         printf("Randomized Forest Failed generation\n");
         std::cerr << "RTs::Forest::Learn() failed." << std::endl;

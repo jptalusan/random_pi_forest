@@ -28,6 +28,7 @@ namespace Utils {
         float dataPerTree;
         std::string mqttBroker;
         std::string nodeName;
+        std::string topic;
 
         void setNodeList(const std::vector<std::string>& nodeList) {
             this->nodeList = nodeList;
@@ -61,6 +62,10 @@ namespace Utils {
             this->nodeName = nodeName;
         }
 
+        void setTopic(std::string topic) {
+            this->topic = topic;
+        }
+
         void setMqttBroker(std::string mqttBroker) {
             this->mqttBroker = mqttBroker;
         }
@@ -91,6 +96,7 @@ namespace Utils {
 
             c.setMqttBroker(j["mqttBroker"]);
             c.setNodeName(j["nodeName"]);
+            c.setTopic(j["topic"]);
             return c;
         }
         
