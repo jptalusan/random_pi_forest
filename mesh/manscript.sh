@@ -1,17 +1,8 @@
 #!/bin/bash
-
-setupMesh() {
-    echo "Setup"
-}
-
 out=$(sudo batctl o | wc -l)
 ifBatExists=$(ip a show bat0 up | wc -l)
-echo "$out"
-echo "$out"
 echo "$ifBatExists"
-echo "$ifBatExists"
-echo "$ifBatExists"
-if [[  "$ifBatExists" > 1  &&  "$out" > 2 ]]; then
+if [ "$ifBatExists" -gt 1 ] && [ "$out" -gt 2 ]; then
     echo "Already setup batman!"
 else
     echo "starting batman"
@@ -45,6 +36,6 @@ else
     echo "Sleeping for 5 seconds"
     sleep 5s
 
-    sudo ifconfig bat0 172.27.0.1/16
+    sudo ifconfig bat0 172.27.0.3/16
     echo "Done!!!"
 fi
