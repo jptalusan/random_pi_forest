@@ -56,18 +56,6 @@ int main(int argc, char *argv[]){
     int port = 1883;
     myMosq* mymosq = new myMosqConcrete(id.c_str(), c.topic.c_str(), host.c_str(), port);
 
-    // int index = 0;
-    // for (auto s : files) {
-    //     std::cout << s << std::endl;
-    //     char* buffer = fileToBuffer(s);
-    //     std::stringstream ss;
-    //     ss << "slave/node" << index;
-    //     std::cout << "sending to :" << ss.str() << std::endl;
-    //     mymosq->send_message(ss.str().c_str(), buffer);
-    //     //delete[] buffer;
-    //     ++index;
-    // }
-
     int sizeOfFilesList = files.size();
     #pragma omp parallel num_threads(sizeOfFilesList)
     {
@@ -80,13 +68,6 @@ int main(int argc, char *argv[]){
         mymosq->send_message(ss.str().c_str(), buffer);
     }
     //End of MQTT
-
-    //MQTT Subscriber loop
-    //You subscribe to your own node name
-    // std::thread t1(mqtt_subscriber_thread, c.mqttBroker, c.nodeName);
-
-    // std::thread t1(mqtt_subscriber_thread, mymosq);
-    // t1.join();
 
     //end of subscriber
     #pragma omp task// num_threads(1)

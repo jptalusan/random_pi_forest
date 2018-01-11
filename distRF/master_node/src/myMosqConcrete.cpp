@@ -56,14 +56,6 @@ void myMosqConcrete::checkNodePayload(int n, std::string str, std::string topic)
         std::stringstream rts;
         rts << "RTs_Forest_" << n << ".txt";
         writeToFile(str.c_str(), rts.str());
-
-        //must fix something in slave because right now the ACK triggers their processing
-        //maybe different topic or parse there
-        // std::string msg("ACK");
-        // std::stringstream s2;
-        // s2 << "slave/node" << n;
-        // this->send_message(s2.str().c_str(), msg.c_str());
-
     }
 }
 

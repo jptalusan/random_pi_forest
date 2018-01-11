@@ -48,7 +48,6 @@ void concurrentReads(int numberOfThreads, std::vector<std::string> vec, std::vec
     }
 
     int division = vec.size() / numberOfThreads;
-    //replacing std::thread with omp.h
     int id, total, data;
     #pragma omp parallel private(data, id, total) num_threads(numberOfThreads)
     {
@@ -59,16 +58,6 @@ void concurrentReads(int numberOfThreads, std::vector<std::string> vec, std::vec
         saveStringVecToFile(vec, division * id, division * (id + 1), id, randomData);
     }
 
-    //minus 1 to remove header
-    //fix load balancing here
-    // std::vector<std::thread> threads;
-    // for (int i = 0; i < numberOfThreads; ++i) {
-    //     threads.push_back(std::thread(saveStringVecToFile, vec, division * i, division * ( i + 1 ), i, randomData));
-    // }
-
-    // for (auto& thread : threads) {
-    //     thread.join();
-    // }
     std::cout << "End of Parallel for loop." << std::endl;
 }
 
