@@ -69,16 +69,14 @@ int main(int argc, char *argv[]){
     // }
 
     int sizeOfFilesList = files.size();
-    int index;
-    #pragma omp parallel private(index) num_threads(sizeOfFilesList)
+    #pragma omp parallel num_threads(sizeOfFilesList)
     {
-        index = omp_get_thread_num();
-        std::string s = files[index];
-        std::cout << s << std::endl;
+        int index = omp_get_thread_num();
+        std::string s(files[index]);
         char* buffer = fileToBuffer(s);
         std::stringstream ss;
         ss << "slave/node" << index;
-        std::cout << "sending to :" << ss.str() << std::endl;
+        std::cout << "sending " << s << " to :" << ss.str() << std::endl;
         mymosq->send_message(ss.str().c_str(), buffer);
     }
     //End of MQTT

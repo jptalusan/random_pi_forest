@@ -47,7 +47,7 @@ void myMosqConcrete::initiateTraining(const char* pchar) {
     t->stop();
     delete t;
 
-    std::cout << "Slave node done training, written to data.txt" << std::endl;
+    std::cout << "Slave node done training, written to RTs_Forest.txt" << std::endl;
 
     //Train first before sending
     //Read dataN.txt files to buffer and publish via MQTT.
@@ -60,11 +60,7 @@ void myMosqConcrete::initiateTraining(const char* pchar) {
 
     std::string topic("master/");
     topic += c.nodeName;
-
-    //remove "slave/" from part of name (what a hack)
-    int indexToRemove = topic.find("slave/");
-    topic.erase(indexToRemove, 6);
-
+    
     std::cout << "Publishing to topic: " << topic << std::endl;
     this->send_message(topic.c_str(), buffer);
     delete[] buffer;
