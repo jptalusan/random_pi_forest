@@ -47,21 +47,32 @@ void concurrentReads(int numberOfThreads, std::vector<std::string> vec, std::vec
         return;
     }
 
-    //minus 1 to remove header
     int division = vec.size() / numberOfThreads;
-    //fix load balancing here
-    std::vector<std::thread> threads;
-    for (int i = 0; i < numberOfThreads; ++i) {
-        threads.push_back(std::thread(saveStringVecToFile, vec, division * i, division * ( i + 1 ), i, randomData));
+    //replacing std::thread with omp.h
+    int id, total, data;
+    #pragma omp parallel private(data, id, total) num_threads(numberOfThreads)
+    {
+        id = omp_get_thread_num();
+        total = omp_get_num_threads();
+        data = id;
+        std::cout << "Thread: " << id << " of: " << total << ", with division: " << division << " and data: " << data << std::endl;
+        saveStringVecToFile(vec, division * id, division * (id + 1), id, randomData);
     }
 
-    for (auto& thread : threads) {
-        thread.join();
-    }
-    std::cout << "Here." << std::endl;
+    //minus 1 to remove header
+    //fix load balancing here
+    // std::vector<std::thread> threads;
+    // for (int i = 0; i < numberOfThreads; ++i) {
+    //     threads.push_back(std::thread(saveStringVecToFile, vec, division * i, division * ( i + 1 ), i, randomData));
+    // }
+
+    // for (auto& thread : threads) {
+    //     thread.join();
+    // }
+    std::cout << "End of Parallel for loop." << std::endl;
 }
 
-void saveStringVecToFile(std::vector<std::string> sVec, int start, int end, int count, std::vector<int> randomData) {
+void saveStringVecToFile(const std::vector<std::string>& sVec, int start, int end, int count, const std::vector<int>& randomData) {
     std::cout << "saveStringVecToFile: " << sVec.size() << ", " << start << ", " << end << ", " << count << std::endl;
     std::stringstream ss;
     ss << "data" << start << ".txt";

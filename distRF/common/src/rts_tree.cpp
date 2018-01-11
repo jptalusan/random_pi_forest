@@ -202,7 +202,7 @@ Node *Tree::build(const int maxDepth,
 			//
 			// 情報利得の最大値を探す
 			//
-			//std::cout << "144_情報利得の最大値を探す" << std::endl;
+			//std::cout << "144 _ Search for maximum value of information gain" << std::endl;
 
 			if(bestGain < gain){
 				bestGain = gain;
@@ -213,7 +213,7 @@ Node *Tree::build(const int maxDepth,
 			}
 		}
 
-		//std::cout << "		145_最適な分岐関数を探しています"
+		//std::cout << "		145_I am looking for an optimal branching function"
 		std::cout<< "145_[" << ft+1 << "/" << featureTrials << "]" << "gain = " << bestGain << "\r\n";
 		std::cout.flush();
 	}

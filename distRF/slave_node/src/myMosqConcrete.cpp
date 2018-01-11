@@ -22,6 +22,7 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
     std::string nodeTopic = c.nodeName;
     std::cout << receivedTopic << std::endl;
     if (receivedTopic.find("slave/" + this->c.nodeName) != std::string::npos) {
+        std::cout << "Received data from master sent to: " + this->c.nodeName << std::endl;
         initiateTraining(pchar);
     } else if (receivedTopic.find("flask/mqtt/query") != std::string::npos) {
         std::stringstream ss;
