@@ -19,6 +19,27 @@ void myMosqConcrete::tester() {
     }
 }
 
+//This will check if all nodes are still active, or one died in transit.
+void myMosqConcrete::checker() {
+    auto timeStart = clock();
+    while (true)
+    {
+        if ((clock() - timeStart) / CLOCKS_PER_SEC >= 5) {// time in seconds 
+            std::cout << "Something went wrong, need to re-do all." << std::endl;
+            this->reset();
+            sendSlavesQuery("start");
+            break;
+        }
+    }
+}
+
+void myMosqConcrete::reset() {
+    publishedNodes.clear();
+    availableNodes.clear();
+    availableNodesAtEnd.clear();
+    nodes.clear();
+    firstAckReceived = false;
+}
 
 /*
 struct mosquitto_message{
@@ -49,15 +70,21 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
         } else if (topic.find("ack/node") != std::string::npos) {
             if (msg == "start") {
                 availableNodes.insert(nodeNumber);
+                nodes.insert(std::make_pair(nodeNumber, "true"));
+                std::cout << "out numberOfAvailableNodes: " << availableNodes.size() << std::endl;
+                if (!firstAckReceived) {
+                    firstAckReceived = true;
+                    std::thread t(&myMosqConcrete::tester, this);
+                    t.detach();
+                }
             } else if (msg == "end") {
                 availableNodesAtEnd.insert(nodeNumber);
             }
-
-            std::cout << "out numberOfAvailableNodes: " << availableNodes.size() << std::endl;
-            if (!firstAckReceived) {
-                firstAckReceived = true;
-                std::thread t(&myMosqConcrete::tester, this);
-                t.detach();
+        } else if (topic.find("lastWill") != std::string::npos) {
+            if (nodes.find(nodeNumber) != nodes.end()) {
+                nodes[nodeNumber] = false;
+            } else {
+                nodes.insert(std::make_pair(nodeNumber, "true"));
             }
         }
     } else {
@@ -66,15 +93,49 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
 
     std::cout << "Published nodes size: " << publishedNodes.size() << std::endl;
     
-    //TODO: compare to size from query, only as fast as the slowest node
-    //TODO: Should I make this a thread?
+    //TODO: check if any node sent a last will if they did, trigger reset and query start again
     if (publishedNodes.size() == availableNodes.size()) {
-        distributedTest();
-        t.stop();
+        bool hasFailed = false;
+        for (auto p : nodes) {
+            if (p.second == false) {
+                std::cout << "node: " << p.first << " has failed." << std::endl;
+                hasFailed = true;
+                break;
+            }
+        }
+
+        if (hasFailed) {
+            sendSlavesQuery("end");
+            //TODO: Find something better to use than sleep here
+            // std::this_thread::sleep_for(std::chrono::seconds(10));
+            
+            std::thread t(&myMosqConcrete::checker, this);
+            t.detach();
+        } else {
+            distributedTest();
+            t.stop();
+            this->reset();
+        }
     }
 
-    return true;
+    //TODO: compare to size from query, only as fast as the slowest node
+    //TODO: Should I make this a thread?
+    // if (publishedNodes.size() == availableNodes.size()) {
+    //     if (firstAckReceived) {
+    //         firstAckReceived = false;
+    //         //TODO: Check if available nodes at this time is equal to the nodes at the start
+    //         sendSlavesQuery("end");
+    //         //TODO: Find something better to use than sleep here
+    //         // std::this_thread::sleep_for(std::chrono::seconds(10));
+            
+    //         std::thread t(&myMosqConcrete::checker, this);
+    //         t.detach();
+    //     }
+    // } else {
 
+    // }
+
+    return true;
 }
 
 void myMosqConcrete::sendSlavesQuery(std::string msg) {
@@ -146,18 +207,6 @@ void myMosqConcrete::distributedTest() {
     Utils::TallyScores *ts = new Utils::TallyScores();
     ts->checkScores(correctLabel, scoreVectors);
 
-    //TODO: Check if available nodes at this time is equal to the nodes at the start
-    sendSlavesQuery("end");
-    //TODO: Find something better to use than sleep here
-    std::this_thread::sleep_for(std::chrono::seconds(5));
-    if (availableNodes != availableNodesAtEnd) {
-        //TODO: trigger the callback to start again
-        printf("Not all nodes were availalbe. Try again.");
-    } else {
-        printf("This is ok.");
-    }
-    availableNodes.clear();
-    availableNodesAtEnd.clear();
     delete ts;
 }
 

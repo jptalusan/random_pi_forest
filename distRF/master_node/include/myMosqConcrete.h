@@ -13,6 +13,7 @@
 #include <set>
 #include <chrono>
 #include <thread>
+#include <map>
 
 #include "mosqrf.h"
 #include "utils.hpp"
@@ -25,6 +26,7 @@ class myMosqConcrete : public myMosq {
     std::vector<int> publishedNodes;
     std::set<int> availableNodes;
     std::set<int> availableNodesAtEnd;
+    std::map<int, bool> nodes;
     std::function<void(int)> callback;
     Utils::Timer t;
     bool firstAckReceived;
@@ -35,7 +37,9 @@ class myMosqConcrete : public myMosq {
     int getClassNumberFromHistogram(int numberOfClasses, const float* histogram);
     void addHandler(std::function<void(int)> c);
     void tester();
+    void checker();
     void sendSlavesQuery(std::string msg);
+    void reset();
 };
 
 

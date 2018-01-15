@@ -83,7 +83,7 @@ int main(){
     mymosq->addHandler(testCallback);
 
     //TODO: maybe change the topic for master?
-    std::string lastWillTopic("broker/lastWill/" + c.nodeName);
+    std::string lastWillTopic("/master/lastWill/" + c.nodeName);
     mymosq->setupLastWill(lastWillTopic, "I am master and i am gone, goodbye.");
     mymosq->connect();
 
