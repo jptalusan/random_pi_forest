@@ -12,6 +12,10 @@
 #include <algorithm>
 #include <sys/types.h>
 #include <dirent.h>
+#include <functional>
+#include <future>
+#include <time.h>
+#include <set>
 
 #include "mosqrf.h"
 #include "utils.hpp"
@@ -22,13 +26,17 @@
 class myMosqConcrete : public myMosq {
     public:
     std::vector<int> publishedNodes;
+    std::set<int> availableNodes;
+    std::function<void(int)> callback;
     Utils::Timer t;
+    bool firstAckReceived;
     myMosqConcrete(const char* id, const char * topic, const char* host, int port);
     bool receive_message(const struct mosquitto_message* message);
     void checkNodePayload(int n, std::string str, std::string topic);
     void distributedTest();
     int getClassNumberFromHistogram(int numberOfClasses, const float* histogram);
-
+    void addHandler(std::function<void(int)> c);
+    void tester();
 };
 
 

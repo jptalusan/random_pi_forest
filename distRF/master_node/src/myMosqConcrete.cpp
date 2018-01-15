@@ -5,7 +5,22 @@ myMosqConcrete::myMosqConcrete(const char* id, const char* _topic, const char* h
     std::cout << "Master node mqtt setup" << std::endl;
     t = Utils::Timer();
     t.start();
+    firstAckReceived = false;
 }
+
+void myMosqConcrete::tester() {
+    auto timeStart = clock();
+    while (true)
+    {
+        if ((clock() - timeStart) / CLOCKS_PER_SEC >= 5) {// time in seconds 
+            std::cout << "HELLO" << std::endl;
+            //When this is called, continue with splitting data to numberOfAckedNodes (in main.cpp)
+            this->callback(availableNodes.size());
+            break;
+        }
+    }
+}
+
 
 /*
 struct mosquitto_message{
@@ -26,23 +41,41 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
     //Should also check the values of the message...
     std::cout << "Message from broker: " << str << std::endl;
 
+    std::string node("node");
     //fix next time for now hardcoded
-    if (topic.find("node0") != std::string::npos) {
-        checkNodePayload(0, str, topic);
-    } else if (topic.find("node1") != std::string::npos) {
-        checkNodePayload(1, str, topic);
-    } else if (topic.find("node2") != std::string::npos) {
-        checkNodePayload(2, str, topic);
-    } else if (topic.find("ack") != std::string::npos) {
-        std::cout << "Acked" << std::endl;
+    if (topic.find(node) != std::string::npos) {
+        int nodeIndex = topic.find(node) + node.length();
+        int nodeNumber = std::stoi(topic.substr(nodeIndex, topic.length()));
+        printf("Received message from node:%d\n", nodeNumber);
+        if (topic.find("forest/node") != std::string::npos) {
+            checkNodePayload(nodeNumber, str, topic);
+        } else if (topic.find("ack/node") != std::string::npos) {
+            std::cout << "Acked" << std::endl;
+            availableNodes.insert(nodeNumber);
+            //TODO: push node name to list (unique) which will be get by main_training and kept for checking at start of validation
+            //to see if one node died in the middle.
+                        
+            std::cout << "out numberOfAvailableNodes: " << availableNodes.size() << std::endl;
+            if (!firstAckReceived) {
+                firstAckReceived = true;
+                std::thread t(&myMosqConcrete::tester, this);
+                t.detach();
+            }
+        }
+    } else {
+        return false;
     }
 
+    std::cout << "Published nodes size: " << publishedNodes.size() << std::endl;
+    
+    //TODO: compare to size from query, only as fast as the slowest node
     if (publishedNodes.size() == 3) {
         distributedTest();
         t.stop();
     }
 
     return true;
+
 }
 
 void myMosqConcrete::checkNodePayload(int n, std::string str, std::string topic) {
@@ -107,6 +140,8 @@ void myMosqConcrete::distributedTest() {
 
     Utils::TallyScores *ts = new Utils::TallyScores();
     ts->checkScores(correctLabel, scoreVectors);
+
+    availableNodes.clear();
     delete ts;
 }
 
@@ -123,4 +158,9 @@ int myMosqConcrete::getClassNumberFromHistogram(int numberOfClasses, const float
         }
     }
     return index;
+}
+
+void myMosqConcrete::addHandler(std::function<void(int)> callback) {
+    printf("Handler added.\n");
+    this->callback = callback;
 }

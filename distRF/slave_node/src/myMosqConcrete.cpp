@@ -4,6 +4,7 @@
 myMosqConcrete::myMosqConcrete(const char* id, const char* _topic, const char* host, int port, Utils::Configs c)
         : myMosq(id, _topic, host, port) {
     this->c = c;
+    //mosquitto_will_set(myMosq, NULL, 0, NULL, 0, false)
     std::cout << "Setup of mosquitto." << std::endl;
 }
 
@@ -31,6 +32,10 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
         const char* cstr = tmp.c_str();
         std::cout << "Received flask: " + tmp;
         this->send_message(nodeTopic.c_str(), cstr);
+    } else if (receivedTopic.find("slave/query") != std::string::npos) {
+        std::string topic("master/ack/" + c.nodeName);
+        std::string msg("ack");
+        this->send_message(topic.c_str(), msg.c_str());
     }
     //End of MQTT
 
@@ -58,14 +63,13 @@ void myMosqConcrete::initiateTraining(const char* pchar) {
     ss << dir << "/RTs_Forest.txt";
     char* buffer = fileToBuffer(ss.str());
 
-    std::string topic("master/");
+    std::string topic("master/forest/" + c.nodeName);
     topic += c.nodeName;
     
     std::cout << "Publishing to topic: " << topic << std::endl;
     this->send_message(topic.c_str(), buffer);
     delete[] buffer;
 }
-
 
 //TODO: make arguments adjustable via argv and transfer code to pi to start distribution
 int myMosqConcrete::train() {

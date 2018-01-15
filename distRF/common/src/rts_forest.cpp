@@ -36,6 +36,7 @@ Forest::Forest(){
 @brief デストラクタ
 */
 Forest::~Forest(){
+	//maybe should also delete tree?
 	if(histogram != NULL){
 		delete [] histogram;
 	}

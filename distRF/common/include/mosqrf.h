@@ -36,6 +36,8 @@ class myMosq : public mosqpp::mosquittopp {
         bool send_message(const char* topic, const char* _message);
         virtual bool receive_message(const struct mosquitto_message* message) = 0;
         bool subscribe_to_topic();
+        void connect();
+        int setupLastWill(const std::string topic, const std::string msg);
 };
 
 std::string GetCurrentWorkingDir(void);

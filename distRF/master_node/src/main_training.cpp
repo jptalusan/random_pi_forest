@@ -1,7 +1,6 @@
 #include "myMosqConcrete.h"
 
 //#define DEBUG
-
 // void mqtt_subscriber_thread(std::string host, std::string topic) {
 void mqtt_subscriber_thread(myMosq* mymosq) {
     mymosq->subscribe_to_topic();
@@ -10,19 +9,10 @@ void mqtt_subscriber_thread(myMosq* mymosq) {
     }
 }
 
-int main(int argc, char *argv[]){
-    Utils::Json *json = new Utils::Json();
-    Utils::Configs c = json->parseJsonFile("configs.json");
-    
-    //Must have BATMAN installed
-    std::string cmd("sudo batctl o");
-    std::string cmdout = json->exec(cmd.c_str());
-    std::cout << cmdout << std::endl;
-    //might need to remove the threading here?
-    //concurrency: Divides the csv file according to the number of nodes available
+myMosqConcrete* m;
+
+void implementRF(int numberOfNodes) {
     std::vector<std::string> data = readFileToBuffer("cleaned.csv");
-    //int numberOfNodes = c.nodeList.size();
-    int numberOfNodes = std::count(cmdout.begin(), cmdout.end(), '*');
 
     std::vector<int> v(data.size());
     std::iota(v.begin(), v.end(), 0);
@@ -48,14 +38,6 @@ int main(int argc, char *argv[]){
     closedir(dirp);
     //end scraper
     
-    //Read dataN.txt files to buffer and publish via MQTT.
-    //send to master topic in localhost
-    std::string host = c.mqttBroker;
-    std::string id = "testing";
-    std::cout << "Subscribing to " << c.topic << std::endl;
-    int port = 1883;
-    myMosq* mymosq = new myMosqConcrete(id.c_str(), c.topic.c_str(), host.c_str(), port);
-
     int sizeOfFilesList = files.size();
     #pragma omp parallel num_threads(sizeOfFilesList)
     {
@@ -65,16 +47,56 @@ int main(int argc, char *argv[]){
         std::stringstream ss;
         ss << "slave/node" << index;
         std::cout << "sending " << s << " to :" << ss.str() << std::endl;
-        mymosq->send_message(ss.str().c_str(), buffer);
+        m->send_message(ss.str().c_str(), buffer);
     }
     //End of MQTT
 
     //end of subscriber
+}
+
+void testCallback(int i) {
+    std::cout << "Called back, total number of nodes: " << i << std::endl;
+    implementRF(i);
+}
+
+int main(int argc, char *argv[]){
+    Utils::Json *json = new Utils::Json();
+    Utils::Configs c = json->parseJsonFile("configs.json");
+    //Must have BATMAN installed
+    // std::string cmd("sudo batctl o");
+    // std::string cmdout = json->exec(cmd.c_str());
+    // std::cout << cmdout << std::endl;
+    //might need to remove the threading here?
+    //concurrency: Divides the csv file according to the number of nodes available
+    //int numberOfNodes = c.nodeList.size();
+
+    //Read dataN.txt files to buffer and publish via MQTT.
+    //send to master topic in localhost
+    std::string host = c.mqttBroker;
+    std::string id = "testing";
+    std::cout << "Subscribing to " << c.topic << std::endl;
+    int port = 1883;
+    myMosqConcrete* mymosq = new myMosqConcrete(id.c_str(), c.topic.c_str(), host.c_str(), port);
+
+    m = mymosq;
+    //callback for number of nodes query
+    mymosq->addHandler(testCallback);
+
+    //TODO: maybe change the topic for master?
+    std::string lastWillTopic("broker/lastWill/" + c.nodeName);
+    mymosq->setupLastWill(lastWillTopic, "I am master and i am gone, goodbye.");
+    mymosq->connect();
+
     #pragma omp task// num_threads(1)
     {
         mqtt_subscriber_thread(mymosq);
     }
 
+    //Query for available nodes
+    std::string queryTopic("slave/query");
+    std::string queryAvailable("queryAvailable");
+    mymosq->send_message(queryTopic.c_str(), queryAvailable.c_str());
+    
     return 0;
 }
 

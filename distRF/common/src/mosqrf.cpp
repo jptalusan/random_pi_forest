@@ -7,8 +7,6 @@ myMosq::myMosq(const char* _id, const char* _topic, const char* _host, int _port
     this->port = _port;
     this->host = _host;
     this->topic = _topic;
-    connect_async(host, port, keepalive);
-    loop_start();
 }
 
 myMosq::~myMosq() {
@@ -38,8 +36,22 @@ void myMosq::on_connect(int rc) {
 void myMosq::on_publish(int mid) {
     std::cout << ">> myMosq = Message (" << mid << ") succeed to be published " << std::endl;
     //delete message;
-    }
+}
 
+int myMosq::setupLastWill(const std::string topic, const std::string lastWillMessage) {
+    int rc;
+
+    std::cout << "Last will topic:" << topic << ", msg:" << lastWillMessage<< std::endl;
+    
+    rc = will_set(topic.c_str(), lastWillMessage.length(), lastWillMessage.c_str(), 0, false);
+
+    return rc;
+}
+
+void myMosq::connect() {
+    connect_async(this->host, this->port, this->keepalive);
+    loop_start();
+}
 /*
 bool myMosq::receive_message(const struct mosquitto_message *message) {
     std::cout << "Received message()" << std::endl;
