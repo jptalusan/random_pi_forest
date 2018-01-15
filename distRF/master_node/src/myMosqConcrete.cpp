@@ -162,15 +162,28 @@ void myMosqConcrete::distributedTest() {
     getcwd(dir,255);
     // std::cout << dir << std::endl;
 
-
-    for (unsigned int i = 0; i < publishedNodes.size(); ++i) {
+    #pragma omp parallel num_threads(publishedNodes.size())
+    {
+        int i = omp_get_thread_num();
         RTs::Forest rts_forest;
         std::stringstream ss;
         ss << dir << "/RTs_Forest_" << i << ".txt";//double check
         rts_forest.Load(ss.str());
-        randomForests.push_back(rts_forest);
+        #pragma omp critical
+        {
+            randomForests.push_back(rts_forest);
+        }
         ss.str(std::string());
     }
+
+    // for (unsigned int i = 0; i < publishedNodes.size(); ++i) {
+    //     RTs::Forest rts_forest;
+    //     std::stringstream ss;
+    //     ss << dir << "/RTs_Forest_" << i << ".txt";//double check
+    //     rts_forest.Load(ss.str());
+    //     randomForests.push_back(rts_forest);
+    //     ss.str(std::string());
+    // }
     //todo: process the rts_forest, load fxn already created the node
     // read the csv file here
     Utils::Parser *p = new Utils::Parser();
