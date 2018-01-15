@@ -30,6 +30,7 @@ class myMosqConcrete : public myMosq {
     std::function<void(int)> callback;
     Utils::Timer t;
     bool firstAckReceived;
+    bool hasFailed;
     myMosqConcrete(const char* id, const char * topic, const char* host, int port);
     bool receive_message(const struct mosquitto_message* message);
     void checkNodePayload(int n, std::string str);

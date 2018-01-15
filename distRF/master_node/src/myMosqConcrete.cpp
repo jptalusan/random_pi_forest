@@ -6,6 +6,7 @@ myMosqConcrete::myMosqConcrete(const char* id, const char* _topic, const char* h
     t = Utils::Timer();
     t.start();
     firstAckReceived = false;
+    hasFailed = false;
 }
 
 void myMosqConcrete::tester() {
@@ -39,6 +40,7 @@ void myMosqConcrete::reset() {
     availableNodesAtEnd.clear();
     nodes.clear();
     firstAckReceived = false;
+    hasFailed = false;
 }
 
 /*
@@ -68,7 +70,11 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
         int nodeNumber = std::stoi(topic.substr(nodeIndex, topic.length()));
         printf("Received message from node:%d\n", nodeNumber);
         if (topic.find("forest/node") != std::string::npos) {
-            checkNodePayload(nodeNumber, msg);
+            //TODO: Check the effect of this
+            #pragma omp task// num_threads(1)
+            {
+                checkNodePayload(nodeNumber, msg);
+            }
         } else if (topic.find("ack/node") != std::string::npos) {
             if (msg == "start") {
                 availableNodes.insert(nodeNumber);
@@ -96,7 +102,7 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
     }
     std::cout << std::endl;
 
-    bool hasFailed = false;
+    //TODO: check if any node sent a last will if they did, trigger reset and query start again
     for (auto p : nodes) {
         if (p.second == false) {
             std::cout << "node: " << p.first << " has failed." << std::endl;
@@ -105,57 +111,23 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
         }
     }
 
-    if (hasFailed) {
-        std::thread t(&myMosqConcrete::checker, this);
-        t.detach();
-    } else {
+    if (publishedNodes.size() == nodes.size() && !hasFailed) {
         distributedTest();
         t.stop();
         this->reset();
+    } else {
+        if (hasFailed) {
+            hasFailed = false;
+            // sendSlavesQuery("end");
+            //TODO: Find something better to use than sleep here
+            // std::this_thread::sleep_for(std::chrono::seconds(10));
+            
+            // std::thread t(&myMosqConcrete::checker, this);
+            // t.detach();
+            this->reset();
+            sendSlavesQuery("start");
+        }
     }
-
-
-    //TODO: check if any node sent a last will if they did, trigger reset and query start again
-    // if (publishedNodes.size() == nodes.size()) {
-    //     bool hasFailed = false;
-    //     for (auto p : nodes) {
-    //         if (p.second == false) {
-    //             std::cout << "node: " << p.first << " has failed." << std::endl;
-    //             hasFailed = true;
-    //             break;
-    //         }
-    //     }
-
-    //     if (hasFailed) {
-    //         sendSlavesQuery("end");
-    //         //TODO: Find something better to use than sleep here
-    //         // std::this_thread::sleep_for(std::chrono::seconds(10));
-            
-    //         std::thread t(&myMosqConcrete::checker, this);
-    //         t.detach();
-    //     } else {
-    //         distributedTest();
-    //         t.stop();
-    //         this->reset();
-    //     }
-    // }
-
-    //TODO: compare to size from query, only as fast as the slowest node
-    //TODO: Should I make this a thread?
-    // if (publishedNodes.size() == availableNodes.size()) {
-    //     if (firstAckReceived) {
-    //         firstAckReceived = false;
-    //         //TODO: Check if available nodes at this time is equal to the nodes at the start
-    //         sendSlavesQuery("end");
-    //         //TODO: Find something better to use than sleep here
-    //         // std::this_thread::sleep_for(std::chrono::seconds(10));
-            
-    //         std::thread t(&myMosqConcrete::checker, this);
-    //         t.detach();
-    //     }
-    // } else {
-
-    // }
 
     return true;
 }
@@ -181,11 +153,6 @@ void myMosqConcrete::checkNodePayload(int n, std::string str) {//, std::string t
 }
 
 void myMosqConcrete::distributedTest() {
-    Utils::Json *json = new Utils::Json();
-    Utils::Configs c = json->parseJsonFile("configs.json");
-
-    std::vector<std::string> nodeList = c.nodeList;
-    
     //Have to loop through all of the node list
     std::vector<std::vector<int>> scoreVectors;
     std::vector<int> correctLabel;
@@ -196,7 +163,7 @@ void myMosqConcrete::distributedTest() {
     // std::cout << dir << std::endl;
 
 
-    for (unsigned int i = 0; i < nodeList.size(); ++i) {
+    for (unsigned int i = 0; i < publishedNodes.size(); ++i) {
         RTs::Forest rts_forest;
         std::stringstream ss;
         ss << dir << "/RTs_Forest_" << i << ".txt";//double check
@@ -219,7 +186,7 @@ void myMosqConcrete::distributedTest() {
     for (unsigned int i = 0; i < samples.size(); ++i) {
         std::vector<int> nodeListSamples(0, 3);
         scoreVectors.push_back(nodeListSamples);
-        for (unsigned int j = 0; j < nodeList.size(); ++j) {
+        for (unsigned int j = 0; j < publishedNodes.size(); ++j) {
             RTs::Feature f = samples[i].feature_vec;
             const float* histo = randomForests[j].EstimateClass(f);
             scoreVectors[i].push_back(getClassNumberFromHistogram(10, histo));
