@@ -12,7 +12,7 @@ void myMosqConcrete::tester() {
     auto timeStart = clock();
     while (true)
     {
-        if ((clock() - timeStart) / CLOCKS_PER_SEC >= 5) {// time in seconds 
+        if ((clock() - timeStart) / CLOCKS_PER_SEC >= 10) {// time in seconds
             this->callback(availableNodes.size());
             break;
         }
@@ -56,7 +56,9 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
     char* pchar = (char*)(message->payload);
     std::string msg(pchar);
 
-    printf("From broker (%s, %s)", message->topic, pchar);
+    if (message->payloadlen < 15) {
+        printf("From broker (%s, %s)\n", message->topic, pchar);
+    }
     //Should also check the values of the message...
 
     std::string node("node");
@@ -80,43 +82,63 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
             } else if (msg == "end") {
                 availableNodesAtEnd.insert(nodeNumber);
             }
-        } else if (topic.find("lastWill") != std::string::npos) {
-            if (nodes.find(nodeNumber) != nodes.end()) {
+        } else if (topic.find("lastWill/node") != std::string::npos) {
                 nodes[nodeNumber] = false;
-            } else {
-                nodes.insert(std::make_pair(nodeNumber, "true"));
-            }
         }
     } else {
         return false;
     }
 
     std::cout << "Published nodes size: " << publishedNodes.size() << std::endl;
-    
-    //TODO: check if any node sent a last will if they did, trigger reset and query start again
-    if (publishedNodes.size() == availableNodes.size()) {
-        bool hasFailed = false;
-        for (auto p : nodes) {
-            if (p.second == false) {
-                std::cout << "node: " << p.first << " has failed." << std::endl;
-                hasFailed = true;
-                break;
-            }
-        }
+    std::cout << "nodes size: " << nodes.size() << std::endl;
+    for (auto p : nodes) {
+        std::cout << p.first << ":" << p.second << ", ";
+    }
+    std::cout << std::endl;
 
-        if (hasFailed) {
-            sendSlavesQuery("end");
-            //TODO: Find something better to use than sleep here
-            // std::this_thread::sleep_for(std::chrono::seconds(10));
-            
-            std::thread t(&myMosqConcrete::checker, this);
-            t.detach();
-        } else {
-            distributedTest();
-            t.stop();
-            this->reset();
+    bool hasFailed = false;
+    for (auto p : nodes) {
+        if (p.second == false) {
+            std::cout << "node: " << p.first << " has failed." << std::endl;
+            hasFailed = true;
+            break;
         }
     }
+
+    if (hasFailed) {
+        std::thread t(&myMosqConcrete::checker, this);
+        t.detach();
+    } else {
+        distributedTest();
+        t.stop();
+        this->reset();
+    }
+
+
+    //TODO: check if any node sent a last will if they did, trigger reset and query start again
+    // if (publishedNodes.size() == nodes.size()) {
+    //     bool hasFailed = false;
+    //     for (auto p : nodes) {
+    //         if (p.second == false) {
+    //             std::cout << "node: " << p.first << " has failed." << std::endl;
+    //             hasFailed = true;
+    //             break;
+    //         }
+    //     }
+
+    //     if (hasFailed) {
+    //         sendSlavesQuery("end");
+    //         //TODO: Find something better to use than sleep here
+    //         // std::this_thread::sleep_for(std::chrono::seconds(10));
+            
+    //         std::thread t(&myMosqConcrete::checker, this);
+    //         t.detach();
+    //     } else {
+    //         distributedTest();
+    //         t.stop();
+    //         this->reset();
+    //     }
+    // }
 
     //TODO: compare to size from query, only as fast as the slowest node
     //TODO: Should I make this a thread?
@@ -171,7 +193,7 @@ void myMosqConcrete::distributedTest() {
     //Assume to read RTs_Forest.txt
     char dir[255];
     getcwd(dir,255);
-    std::cout << dir << std::endl;
+    // std::cout << dir << std::endl;
 
 
     for (unsigned int i = 0; i < nodeList.size(); ++i) {

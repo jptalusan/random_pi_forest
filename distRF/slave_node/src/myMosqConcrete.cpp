@@ -22,7 +22,7 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
     std::string nodeTopic = c.nodeName;
     std::string msg(pchar);
 
-    std::cout << receivedTopic << ":" << msg << std::endl;
+    std::cout << receivedTopic << std::endl;
     //TODO: might have problems with node1 and node 10,11  etc... should be equality not if contains
     if (receivedTopic.find("slave/" + this->c.nodeName) != std::string::npos) {
         std::cout << "Received data from master sent to: " + this->c.nodeName << std::endl;

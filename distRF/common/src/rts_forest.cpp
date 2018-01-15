@@ -78,17 +78,17 @@ bool Forest::Learn(
 		delete [] histogram;
 		histogram = NULL;
 	}
-	std::cout << "＊Forest::Learn関数：教師信号による Randomized Forest を生成する関数:1＊" << std::endl;
+	// std::cout << "＊Forest::Learn関数：教師信号による Randomized Forest を生成する関数:1＊" << std::endl;
 
 	// ラベルの頻度の逆数を生成 (ヒストグラムの重み付けに使う)
-	std::cout << "	10_ラベルの頻度の逆数を生成 (ヒストグラムの重み付けに使う)" << std::endl;
+	// std::cout << "	10_ラベルの頻度の逆数を生成 (ヒストグラムの重み付けに使う)" << std::endl;
 
 	std::vector<float> inverse_label_freq(numClass, 0);
 	//debug
-	for (std::vector<float>::const_iterator i = inverse_label_freq.begin(); i != inverse_label_freq.end(); ++i)
-    	std::cout << *i << ' ';
+	// for (std::vector<float>::const_iterator i = inverse_label_freq.begin(); i != inverse_label_freq.end(); ++i)
+ //    	std::cout << *i << ' ';
 
-	std::cout << "	クラス数" << numClass << std::endl;
+	// std::cout << "	クラス数" << numClass << std::endl;
 
 	//Counting all samples available for each class
 	//But what is this for?
@@ -102,10 +102,10 @@ bool Forest::Learn(
 	}
 
 	//debug
-	for (std::vector<float>::const_iterator i = inverse_label_freq.begin(); i != inverse_label_freq.end(); ++i)
-    	std::cout << *i << ' ';
+	// for (std::vector<float>::const_iterator i = inverse_label_freq.begin(); i != inverse_label_freq.end(); ++i)
+ //    	std::cout << *i << ' ';
 
-	std::cout << std::endl;
+	// std::cout << std::endl;
 	for(int c=0; c<numClass; ++c){
 		if(0 < inverse_label_freq[c]){
 			inverse_label_freq[c] = 1.0f/inverse_label_freq[c];
@@ -113,12 +113,12 @@ bool Forest::Learn(
 	}
 
 	//debug
-	for (std::vector<float>::const_iterator i = inverse_label_freq.begin(); i != inverse_label_freq.end(); ++i)
-    	std::cout << *i << ' ';
+	// for (std::vector<float>::const_iterator i = inverse_label_freq.begin(); i != inverse_label_freq.end(); ++i)
+ //    	std::cout << *i << ' ';
 
-	std::cout << std::endl;
+	// std::cout << std::endl;
 	// Tree が受け付けるのは "Sample *" の vector なので，ポインタの vector を生成
-	std::cout << "	11_Tree が受け付けるのは Sample * の vector なので，ポインタの vector を生成" << std::endl;
+	// std::cout << "	11_Tree が受け付けるのは Sample * の vector なので，ポインタの vector を生成" << std::endl;
 	std::vector<const Sample *> samples_pointers(samples.size());
 	for(unsigned int s=0; s<samples.size(); ++s){
 		samples_pointers[s] = &samples[s];
@@ -127,7 +127,7 @@ bool Forest::Learn(
 	//決定木の数繰り返す＝分散処理する数
 	for(int t=0; t<numTrees; ++t){
 		// 決定木を新たに作成
-		std::cout << "	12_決定木を新たに作成する" << std::endl;
+		// std::cout << "	12_決定木を新たに作成する" << std::endl;
 		trees.push_back(new Tree(numClass));
 		//Treeクラスの初期化
 		//numClass = クラス数
@@ -135,13 +135,13 @@ bool Forest::Learn(
 		// この決定木のためのサブセット学習データを生成
 		//This is only training data? so 0.25 percent of data is training?
 		//the 0.5 does not do anything
-		std::cout << "	13_この決定木のためのサブセット学習データを生成" << std::endl;
+		// std::cout << "	13_この決定木のためのサブセット学習データを生成" << std::endl;
 		std::vector<const Sample *> subset_samples_pointers((int)(samples_pointers.size()*dataPerTree + .5));
 
 		//debug
-		std::cout << (samples_pointers.size()*dataPerTree + .5) << std::endl;
-		std::cout << samples_pointers.size() << std::endl;
-		std::cout << subset_samples_pointers.size() << std::endl;
+		// std::cout << (samples_pointers.size()*dataPerTree + .5) << std::endl;
+		// std::cout << samples_pointers.size() << std::endl;
+		// std::cout << subset_samples_pointers.size() << std::endl;
 
 		int number;
 		//Shouldn't we also check for duplicates here so that subset_samples_pointers is unique
@@ -162,11 +162,11 @@ bool Forest::Learn(
 		*/
 
 		//Build tree using subset samples but create histogram from all
-		std::cout << "	14_サブセットを使って決定木を学習させる" << std::endl;
+		// std::cout << "	14_サブセットを使って決定木を学習させる" << std::endl;
 		if(trees.back()->BuildTree(maxDepth, featureTrials, thresholdTrials,
 		                          subset_samples_pointers, inverse_label_freq) == false){
 			// エラー：決定木の学習中に何かエラーが起きた模様
-			std::cout << "	Error: Pattern that something error occurred while learning decision tree" << std::endl;
+			// std::cout << "	Error: Pattern that something error occurred while learning decision tree" << std::endl;
 			for(unsigned int t=0; t<trees.size(); ++t){
 				delete trees[t];
 			}
@@ -175,7 +175,7 @@ bool Forest::Learn(
 		}
 
 		// 決定木の末端ノードのヒストグラムを作成
-		std::cout << "	15_ Create a histogram of the terminal nodes of the decision tree" << std::endl;
+		// std::cout << "	15_ Create a histogram of the terminal nodes of the decision tree" << std::endl;
 		if(trees.back()->BuildHistograms(samples_pointers, inverse_label_freq) == false){
 			// Error: Something seems to have occurred during histogram creation
 			for(unsigned int t=0; t<trees.size(); ++t){
@@ -246,7 +246,7 @@ const float* Forest::EstimateClass(const Feature &feature_vec){
 
 bool Forest::Save(const std::string &filename){
 
-	std::cout << "＊Forest::Save： Forest 全体を保存する．:3＊" << std::endl;
+	// std::cout << "＊Forest::Save： Forest 全体を保存する．:3＊" << std::endl;
 
 	if(trees.empty()){
 		// エラー：決定木が作成されていない
@@ -286,7 +286,7 @@ bool Forest::Save(const std::string &filename){
 */
 
 bool Forest::Load(const std::string &filename){
-	std::cout << "＊Forest::Load： Forest Load the whole．4＊" << std::endl;
+	// std::cout << "＊Forest::Load： Forest Load the whole．4＊" << std::endl;
 
 	for(unsigned int t=0; t<trees.size(); ++t){
 		delete trees[t];

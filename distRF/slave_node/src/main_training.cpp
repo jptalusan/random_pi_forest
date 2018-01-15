@@ -7,7 +7,7 @@ void mqtt_subscriber_thread(std::string host, std::string topic, Utils::Configs 
     int port = 1883;
     const std::string message = "subscribe";
     myMosq* mymosq = new myMosqConcrete(id.c_str(), topic.c_str(), host.c_str(), port, c);
-    std::string lastWillTopic("/master/lastWill/" + c.nodeName);
+    std::string lastWillTopic("master/lastWill/" + c.nodeName);
     mymosq->setupLastWill(lastWillTopic, ("I am " + c.nodeName + " and i am gone, goodbye."));
     mymosq->connect();
     mymosq->subscribe_to_topic();

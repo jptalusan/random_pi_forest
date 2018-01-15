@@ -82,7 +82,7 @@ namespace Utils {
             json j;
             jsonFile >> j;
 
-            std::cout << std::setw(4) << j << std::endl;
+            // std::cout << std::setw(4) << j << std::endl;
             
             c.setNodeList(j["nodeList"]);
             c.setNumClass(j["numClass"]);
@@ -132,7 +132,7 @@ namespace Utils {
                 std::getline(infile, sLine);
                 numberOfFeatures = std::count(sLine.begin(), sLine.end(), ',');
                 
-                std::cout << numberOfFeatures << std::endl;
+                // std::cout << numberOfFeatures << std::endl;
             }
             infile.close();
 
@@ -215,7 +215,7 @@ namespace Utils {
                 ss.str(std::string());
                 ss << "rm RTs_Forest_*.txt";
                 std::string command = ss.str();
-                std::cout << command << std::endl;
+                // std::cout << command << std::endl;
                 system(command.c_str());
             }
         }
@@ -252,17 +252,17 @@ namespace Utils {
             int i = 0;
             int score = 0;
             std::for_each(consolidated.begin(), consolidated.end(), [&](int a) {
-                std::cout << a;
+                // std::cout << a;
                 if (a == correctLabels[i]) {
                     ++score;
                 }
                 ++i;
             });
 
-            std::cout << std::endl;
-            std::for_each(correctLabels.begin(), correctLabels.end(), [](int a) {
-                std::cout << a;
-            });
+            // std::cout << std::endl;
+            // std::for_each(correctLabels.begin(), correctLabels.end(), [](int a) {
+            //     std::cout << a;
+            // });
 
             std::cout << std::endl << "Score: " << score << " / " << consolidated.size() << std::endl;
             float f = (float)score / (float)consolidated.size();

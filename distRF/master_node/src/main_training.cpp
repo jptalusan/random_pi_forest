@@ -46,7 +46,7 @@ void implementRF(int numberOfNodes) {
         char* buffer = fileToBuffer(s);
         std::stringstream ss;
         ss << "slave/node" << index;
-        std::cout << "sending " << s << " to :" << ss.str() << std::endl;
+        // std::cout << "sending " << s << " to :" << ss.str() << std::endl;
         m->send_message(ss.str().c_str(), buffer);
     }
     //End of MQTT
@@ -83,7 +83,7 @@ int main(){
     mymosq->addHandler(testCallback);
 
     //TODO: maybe change the topic for master?
-    std::string lastWillTopic("/master/lastWill/" + c.nodeName);
+    std::string lastWillTopic("master/lastWill/" + c.nodeName);
     mymosq->setupLastWill(lastWillTopic, "I am master and i am gone, goodbye.");
     mymosq->connect();
 

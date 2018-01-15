@@ -34,19 +34,19 @@ Node *Tree::build(const int maxDepth,
                   const int depth){
 
 
-	std::cout << "		*Tree::build:再帰処理で Node の階層を生成する関数．:1" << std::endl;
+	// std::cout << "		*Tree::build:再帰処理で Node の階層を生成する関数．:1" << std::endl;
 	if(samples.empty()){
 		std::cout << "		samples.empty()" << std::endl;
 		return NULL;
 	}
 
 	// 特徴量の次元数．ちょっとダサいが，サンプル中の特徴量の次元数を参照する．
-	std::cout << "		140_特徴量の次元数．ちょっとダサいが，サンプル中の特徴量の次元数を参照する" << std::endl;
+	// std::cout << "		140_特徴量の次元数．ちょっとダサいが，サンプル中の特徴量の次元数を参照する" << std::endl;
 	unsigned int feature_dim = samples[0]->feature_vec.size();
-	std::cout << "		特徴量の次元数=" << feature_dim << std::endl;
+	// std::cout << "		特徴量の次元数=" << feature_dim << std::endl;
 
 	// 後のしきい値ランダム生成で特徴量の各次元の最大値，最小値が必要なので，ここで先に求めておく
-	std::cout << "		Since the maximum value and the minimum value of each dimension of the feature quantity are necessary in the threshold value random generation after 141 _, it is obtained here first" << std::endl;
+	// std::cout << "		Since the maximum value and the minimum value of each dimension of the feature quantity are necessary in the threshold value random generation after 141 _, it is obtained here first" << std::endl;
 	std::vector<float> feature_min_values(feature_dim);
 	std::vector<float> feature_max_values(feature_dim);
 	for(unsigned int f=0; f<feature_dim; ++f){
@@ -97,7 +97,7 @@ Node *Tree::build(const int maxDepth,
 	rSamples.reserve(samples.size());
 
 	// Search division results that maximize information gain
-	std::cout << "		142_情報利得を最大化する分割結果を探索する" << std::endl;
+	// std::cout << "		142_情報利得を最大化する分割結果を探索する" << std::endl;
 	double bestGain = -FLT_MAX;
 	float bestThreshold = 0;
 	int bestFeature = 0;
@@ -106,7 +106,7 @@ Node *Tree::build(const int maxDepth,
 	bestlSamples.reserve(samples.size());
 	bestrSamples.reserve(samples.size());
 
-	std::cout << "		143_分岐につかう特徴量の次元をランダムに決定" << std::endl;
+	// std::cout << "		143_分岐につかう特徴量の次元をランダムに決定" << std::endl;
 	for(int ft=0; ft<featureTrials; ++ft){
 
 		// Randomly determine the dimensions of features used for branching
@@ -214,13 +214,13 @@ Node *Tree::build(const int maxDepth,
 		}
 
 		//std::cout << "		145_I am looking for an optimal branching function"
-		std::cout<< "145_[" << ft+1 << "/" << featureTrials << "]" << "gain = " << bestGain << "\r\n";
-		std::cout.flush();
+		// std::cout<< "145_[" << ft+1 << "/" << featureTrials << "]" << "gain = " << bestGain << "\r\n";
+		// std::cout.flush();
 	}
-	std::cout << std::endl;
+	// std::cout << std::endl;
 
 	// 最良だったパラメータをノードに保存
-	std::cout << "		146_Save best parameters to node" << std::endl;
+	// std::cout << "		146_Save best parameters to node" << std::endl;
 	Node *node = new Node();
 	node->feature_id = bestFeature;
 	node->threshold = bestThreshold;
@@ -228,17 +228,17 @@ Node *Tree::build(const int maxDepth,
 	//
 	// 今回で末端ノードに到達したかどうかチェック
 	//
-	std::cout << "		147 _ Check if it reached the terminal node this time" << std::endl;
+	// std::cout << "		147 _ Check if it reached the terminal node this time" << std::endl;
 	if(-FLT_MIN < bestGain || maxDepth < depth || bestlSamples.empty() || bestrSamples.empty()){
 		// 末端ノードに到達したので，ヒストグラム用のメモリを確保．
 		// (Since the contents of the histogram will be generated later, we do not mind here)
-		std::cout << "		148_Since it reached end node, securing memory for histogram" << std::endl;
-		std::cout << "		leaf node !" << std::endl;
+		// std::cout << "		148_Since it reached end node, securing memory for histogram" << std::endl;
+		// std::cout << "		leaf node !" << std::endl;
 		node->distribution = new float[numClass];
 	}
 	else{
 		// Since it is still a branch node, it creates child nodes
-		std::cout << "		149_まだ分岐ノードなので，子ノードを生成する" << std::endl;
+		// std::cout << "		149_まだ分岐ノードなので，子ノードを生成する" << std::endl;
 		node->lChild = build(maxDepth, featureTrials, thresholdTrials, bestlSamples, inverse_label_freq, depth+1);
 		node->rChild = build(maxDepth, featureTrials, thresholdTrials, bestrSamples, inverse_label_freq, depth+1);
 		if(node->lChild == NULL || node->rChild == NULL){
@@ -554,12 +554,12 @@ bool Tree::BuildTree(const int maxDepth,
                      const std::vector<const Sample *> &samples,
                      const std::vector<float> &inverse_label_freq){
 
-	std::cout << "		Tree::BuildTree関数:指定されたパラメータで学習データから決定木構造を生成する関数:10" << std::endl;
+	// std::cout << "		Tree::BuildTree関数:指定されたパラメータで学習データから決定木構造を生成する関数:10" << std::endl;
 	if(root != NULL){
-		std::cout << "		root != NULL" << std::endl;
+		// std::cout << "		root != NULL" << std::endl;
 		delete root;
 	}
-	std::cout << "		build関数へ．" << std::endl;
+	// std::cout << "		build関数へ．" << std::endl;
 	root = build(maxDepth, featureTrials, thresholdTrials, samples, inverse_label_freq, 0);
 
 
@@ -584,7 +584,7 @@ bool Tree::BuildTree(const int maxDepth,
 bool Tree::BuildHistograms(const std::vector<const Sample *> &samples,
                            const std::vector<float> &inverse_label_freq){
 
-	std::cout << "		Tree::BuildHistogramsFunction: A function that generates a histogram of a terminal node by learning data using a constructed decision tree structure:11" << std::endl;
+	// std::cout << "		Tree::BuildHistogramsFunction: A function that generates a histogram of a terminal node by learning data using a constructed decision tree structure:11" << std::endl;
 
 	if(root == NULL){
 		std::cout << "		root == NULL" << std::endl;
@@ -599,7 +599,7 @@ bool Tree::BuildHistograms(const std::vector<const Sample *> &samples,
 	}
 
 	// 学習データを１つづつヒストグラムに投票する
-	std::cout << "		Vote the learning data one by one on the histogram" << std::endl;
+	// std::cout << "		Vote the learning data one by one on the histogram" << std::endl;
 	for(unsigned int s=0; s<samples.size(); ++s){
 		if(voteHistograms(*samples[s], inverse_label_freq, root) == false){
 			return false;
@@ -607,7 +607,7 @@ bool Tree::BuildHistograms(const std::vector<const Sample *> &samples,
 	}
 
 	// 全ての末端ノードのヒストグラムを正規化する
-	std::cout << "		Normalize the histogram of all the terminal nodes" << std::endl;
+	// std::cout << "		Normalize the histogram of all the terminal nodes" << std::endl;
 	if(normalizeHistograms(root) == false){
 		return false;
 	}
