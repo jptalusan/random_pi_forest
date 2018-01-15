@@ -13,8 +13,6 @@ void myMosqConcrete::tester() {
     while (true)
     {
         if ((clock() - timeStart) / CLOCKS_PER_SEC >= 5) {// time in seconds 
-            std::cout << "HELLO" << std::endl;
-            //When this is called, continue with splitting data to numberOfAckedNodes (in main.cpp)
             this->callback(availableNodes.size());
             break;
         }
@@ -34,12 +32,11 @@ struct mosquitto_message{
 */
 bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
     std::string topic(message->topic);
-    std::cout << "Message from broker with topic: " << topic << std::endl;
-
     char* pchar = (char*)(message->payload);
-    std::string str(pchar);
+    std::string msg(pchar);
+
+    printf("From broker (%s, %s)", message->topic, pchar);
     //Should also check the values of the message...
-    std::cout << "Message from broker: " << str << std::endl;
 
     std::string node("node");
     //fix next time for now hardcoded
@@ -48,13 +45,14 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
         int nodeNumber = std::stoi(topic.substr(nodeIndex, topic.length()));
         printf("Received message from node:%d\n", nodeNumber);
         if (topic.find("forest/node") != std::string::npos) {
-            checkNodePayload(nodeNumber, str, topic);
+            checkNodePayload(nodeNumber, msg);
         } else if (topic.find("ack/node") != std::string::npos) {
-            std::cout << "Acked" << std::endl;
-            availableNodes.insert(nodeNumber);
-            //TODO: push node name to list (unique) which will be get by main_training and kept for checking at start of validation
-            //to see if one node died in the middle.
-                        
+            if (msg == "start") {
+                availableNodes.insert(nodeNumber);
+            } else if (msg == "end") {
+                availableNodesAtEnd.insert(nodeNumber);
+            }
+
             std::cout << "out numberOfAvailableNodes: " << availableNodes.size() << std::endl;
             if (!firstAckReceived) {
                 firstAckReceived = true;
@@ -69,7 +67,8 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
     std::cout << "Published nodes size: " << publishedNodes.size() << std::endl;
     
     //TODO: compare to size from query, only as fast as the slowest node
-    if (publishedNodes.size() == 3) {
+    //TODO: Should I make this a thread?
+    if (publishedNodes.size() == availableNodes.size()) {
         distributedTest();
         t.stop();
     }
@@ -78,7 +77,13 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
 
 }
 
-void myMosqConcrete::checkNodePayload(int n, std::string str, std::string topic) {
+void myMosqConcrete::sendSlavesQuery(std::string msg) {
+    //Query for available nodes
+    std::string queryTopic("slave/query");
+    send_message(queryTopic.c_str(), msg.c_str());
+}
+
+void myMosqConcrete::checkNodePayload(int n, std::string str) {//, std::string topic) {
     std::cout << "Master node is processing received forests..." << std::endl;
     std::stringstream ss;
     ss << "Receiving node " << n << " message...";
@@ -141,7 +146,18 @@ void myMosqConcrete::distributedTest() {
     Utils::TallyScores *ts = new Utils::TallyScores();
     ts->checkScores(correctLabel, scoreVectors);
 
+    //TODO: Check if available nodes at this time is equal to the nodes at the start
+    sendSlavesQuery("end");
+    //TODO: Find something better to use than sleep here
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+    if (availableNodes != availableNodesAtEnd) {
+        //TODO: trigger the callback to start again
+        printf("Not all nodes were availalbe. Try again.");
+    } else {
+        printf("This is ok.");
+    }
     availableNodes.clear();
+    availableNodesAtEnd.clear();
     delete ts;
 }
 

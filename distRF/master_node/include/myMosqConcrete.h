@@ -1,13 +1,8 @@
 #ifndef MYMOSQCONCRETE_H
 #define MYMOSQCONCRETE_H
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
 #include <vector>
 #include <string>
-#include <cstring>
-#include <unistd.h>
 #include <float.h>
 #include <algorithm>
 #include <sys/types.h>
@@ -16,6 +11,8 @@
 #include <future>
 #include <time.h>
 #include <set>
+#include <chrono>
+#include <thread>
 
 #include "mosqrf.h"
 #include "utils.hpp"
@@ -27,16 +24,18 @@ class myMosqConcrete : public myMosq {
     public:
     std::vector<int> publishedNodes;
     std::set<int> availableNodes;
+    std::set<int> availableNodesAtEnd;
     std::function<void(int)> callback;
     Utils::Timer t;
     bool firstAckReceived;
     myMosqConcrete(const char* id, const char * topic, const char* host, int port);
     bool receive_message(const struct mosquitto_message* message);
-    void checkNodePayload(int n, std::string str, std::string topic);
+    void checkNodePayload(int n, std::string str);
     void distributedTest();
     int getClassNumberFromHistogram(int numberOfClasses, const float* histogram);
     void addHandler(std::function<void(int)> c);
     void tester();
+    void sendSlavesQuery(std::string msg);
 };
 
 

@@ -17,10 +17,11 @@ myMosqConcrete::myMosqConcrete(const char* id, const char* _topic, const char* h
 //         bool retain;
 // }
 bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
-    std::cout << "Slave node start processing!" << std::endl;
     char *pchar = (char*)(message->payload);
     std::string receivedTopic(message->topic);
     std::string nodeTopic = c.nodeName;
+    std::string msg(pchar);
+
     std::cout << receivedTopic << std::endl;
     if (receivedTopic.find("slave/" + this->c.nodeName) != std::string::npos) {
         std::cout << "Received data from master sent to: " + this->c.nodeName << std::endl;
@@ -34,7 +35,6 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
         this->send_message(nodeTopic.c_str(), cstr);
     } else if (receivedTopic.find("slave/query") != std::string::npos) {
         std::string topic("master/ack/" + c.nodeName);
-        std::string msg("ack");
         this->send_message(topic.c_str(), msg.c_str());
     }
     //End of MQTT
@@ -64,7 +64,6 @@ void myMosqConcrete::initiateTraining(const char* pchar) {
     char* buffer = fileToBuffer(ss.str());
 
     std::string topic("master/forest/" + c.nodeName);
-    topic += c.nodeName;
     
     std::cout << "Publishing to topic: " << topic << std::endl;
     this->send_message(topic.c_str(), buffer);

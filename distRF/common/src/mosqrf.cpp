@@ -94,7 +94,7 @@ void myMosq::on_message(const struct mosquitto_message *message) {
 }
 
 void myMosq::on_subscribe(int mid, int qos_count, const int* granted_qos) {
-    std::cout << ">> subscription succeeded (" << mid << ") " << std::endl;
+    std::cout << ">> subscription succeeded (" << mid << ") with qos: " << granted_qos << ", and count of: " << qos_count << std::endl;
 }
 
 void myMosq::on_unsubscribe(int mid) {

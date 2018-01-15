@@ -2,14 +2,16 @@
 #define MOSQRF_H
 
 #include <iostream>
-#include "mosquittopp.h"
 #include <cstring>
 #include <unistd.h>
 #include <sstream>
 #include <fstream>
 #include <algorithm>
-#define GetCurrentDir getcwd
+
 #include "mqttInterface.h"
+#include "mosquittopp.h"
+
+#define GetCurrentDir getcwd
 
 class myMosq : public mosqpp::mosquittopp {
     private:

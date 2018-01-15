@@ -59,7 +59,7 @@ void testCallback(int i) {
     implementRF(i);
 }
 
-int main(int argc, char *argv[]){
+int main(){
     Utils::Json *json = new Utils::Json();
     Utils::Configs c = json->parseJsonFile("configs.json");
     //Must have BATMAN installed
@@ -87,15 +87,12 @@ int main(int argc, char *argv[]){
     mymosq->setupLastWill(lastWillTopic, "I am master and i am gone, goodbye.");
     mymosq->connect();
 
+    mymosq->sendSlavesQuery("start");
+
     #pragma omp task// num_threads(1)
     {
         mqtt_subscriber_thread(mymosq);
     }
-
-    //Query for available nodes
-    std::string queryTopic("slave/query");
-    std::string queryAvailable("queryAvailable");
-    mymosq->send_message(queryTopic.c_str(), queryAvailable.c_str());
     
     return 0;
 }
