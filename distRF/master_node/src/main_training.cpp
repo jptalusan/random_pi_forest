@@ -1,7 +1,6 @@
 #include "myMosqConcrete.h"
 
 //#define DEBUG
-// void mqtt_subscriber_thread(std::string host, std::string topic) {
 void mqtt_subscriber_thread(myMosq* mymosq) {
     mymosq->subscribe_to_topic();
     while(1) {
@@ -12,6 +11,7 @@ void mqtt_subscriber_thread(myMosq* mymosq) {
 myMosqConcrete* m;
 
 void implementRF(int numberOfNodes) {
+    std::cout << Utils::Command::exec("rm data* RTs_Forest*") << std::endl;
     std::vector<std::string> data = readFileToBuffer("cleaned.csv");
 
     std::vector<int> v(data.size());
@@ -62,14 +62,8 @@ void testCallback(int i) {
 int main(){
     Utils::Json *json = new Utils::Json();
     Utils::Configs c = json->parseJsonFile("configs.json");
-    //Must have BATMAN installed
-    // std::string cmd("sudo batctl o");
-    // std::string cmdout = json->exec(cmd.c_str());
-    // std::cout << cmdout << std::endl;
-    //might need to remove the threading here?
-    //concurrency: Divides the csv file according to the number of nodes available
-    //int numberOfNodes = c.nodeList.size();
 
+    
     //Read dataN.txt files to buffer and publish via MQTT.
     //send to master topic in localhost
     std::string host = c.mqttBroker;

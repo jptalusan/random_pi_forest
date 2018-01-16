@@ -44,6 +44,7 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
 }
 
 void myMosqConcrete::initiateTraining(const char* pchar) {
+    Utils::Command::exec("rm data* RTs_Forest*");
     writeToFile(pchar, "data.txt");
     // サンプルデータの読み込み
     //
@@ -85,8 +86,7 @@ int myMosqConcrete::train() {
     ss << dir << "/data.txt";
     std::cout << ss.str() << std::endl;
     samples = p->readCSVToSamples(ss.str());
-    std::cout << samples[4].label << std::endl;
-
+    
     std::cout << "1_Randomized Forest generation" << std::endl;
     RTs::Forest rts_forest;
     if(!rts_forest.Learn(

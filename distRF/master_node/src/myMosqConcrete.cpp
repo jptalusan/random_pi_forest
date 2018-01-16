@@ -176,16 +176,6 @@ void myMosqConcrete::distributedTest() {
         ss.str(std::string());
     }
 
-    // for (unsigned int i = 0; i < publishedNodes.size(); ++i) {
-    //     RTs::Forest rts_forest;
-    //     std::stringstream ss;
-    //     ss << dir << "/RTs_Forest_" << i << ".txt";//double check
-    //     rts_forest.Load(ss.str());
-    //     randomForests.push_back(rts_forest);
-    //     ss.str(std::string());
-    // }
-    //todo: process the rts_forest, load fxn already created the node
-    // read the csv file here
     Utils::Parser *p = new Utils::Parser();
     p->setClassColumn(1);
     std::vector<RTs::Sample> samples = p->readCSVToSamples("cleaned.csv");
@@ -196,12 +186,14 @@ void myMosqConcrete::distributedTest() {
         correctLabel.push_back(s.label);
     });
 
+    //TODO: Break here if fail? then restart?
     for (unsigned int i = 0; i < samples.size(); ++i) {
-        std::vector<int> nodeListSamples(0, 3);
+        std::vector<int> nodeListSamples;
         scoreVectors.push_back(nodeListSamples);
         for (unsigned int j = 0; j < publishedNodes.size(); ++j) {
             RTs::Feature f = samples[i].feature_vec;
             const float* histo = randomForests[j].EstimateClass(f);
+            //TODO: 10 is hard coded number of classes + 1
             scoreVectors[i].push_back(getClassNumberFromHistogram(10, histo));
         }
     }

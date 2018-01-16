@@ -592,7 +592,7 @@ bool Tree::BuildHistograms(const std::vector<const Sample *> &samples,
 	}
 
 	// 全ての末端ノードのヒストグラムをゼロクリアする
-	std::cout << "		Clear the histogram of all the terminal nodes to zero" << std::endl;
+	// std::cout << "		Clear the histogram of all the terminal nodes to zero" << std::endl;
 	if(clearHistograms(root) == false){
 		std::cout << "		clearHistograms(root) == false" << std::endl;
 		return false;
