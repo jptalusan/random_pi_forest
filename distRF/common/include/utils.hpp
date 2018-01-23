@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <string>
 #include <map>
+#include <utility>
 #include "rts_sample.hpp"
 #include <chrono>
 #include "../../../libs/json.hpp"
@@ -98,6 +99,29 @@ namespace Utils {
             c.setNodeName(j["nodeName"]);
             c.setTopic(j["topic"]);
             return c;
+        }
+
+        static std::string createJsonFile(std::vector<std::pair<std::string, std::string>> kvPairs) {
+            std::stringstream json;
+            json << "{";
+            int kvPairsSize = kvPairs.size();
+            int index = 1;
+            std::cout << kvPairsSize << std::endl;
+            for (auto p : kvPairs) {
+                json << "\"";
+                json << p.first;
+                json << "\":\"";
+                json << p.second;
+                json << "\"";
+                if (index != kvPairsSize) {
+                    json << ",";
+                }
+                ++index;
+            }
+
+            json << "}";
+            std::cout << "json: " << json.str() << std::endl;
+        return json.str();
         }
     };
 

@@ -27,13 +27,20 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
     if (receivedTopic.find("slave/" + this->c.nodeName) != std::string::npos) {
         std::cout << "Received data from master sent to: " + this->c.nodeName << std::endl;
         initiateTraining(pchar);
-    } else if (receivedTopic.find("flask/mqtt/query") != std::string::npos) {
-        std::stringstream ss;
-        ss << "Response, i'm here" << std::endl;
-        const std::string& tmp = ss.str();
-        const char* cstr = tmp.c_str();
-        std::cout << "Received flask: " + tmp;
-        this->send_message(nodeTopic.c_str(), cstr);
+    } else if (receivedTopic.find("flask/query") != std::string::npos) {
+        std::string topic("flask/query");
+
+        std::vector<std::pair<std::string, std::string>> kv;
+
+        std::string ipaddress = Utils::Command::exec("hostname -I");
+
+        kv.push_back(std::make_pair("ipaddress", ipaddress.substr(0, ipaddress.find(" "))));
+        kv.push_back(std::make_pair("availability", this->isProcessing ? "busy" : "available"));
+        kv.push_back(std::make_pair("status", "slave"));
+        kv.push_back(std::make_pair("node", c.nodeName));
+        std::string json = Utils::Json::createJsonFile(kv);
+        
+        this->send_message(topic.c_str(), json.c_str());
     } else if (receivedTopic.find("slave/query") != std::string::npos) {
         std::string topic("master/ack/" + c.nodeName);
         this->send_message(topic.c_str(), msg.c_str());
@@ -50,8 +57,10 @@ void myMosqConcrete::initiateTraining(const char* pchar) {
     //
     Utils::Timer* t = new Utils::Timer();
     t->start();
+    this->isProcessing = true;
     train();
     t->stop();
+    this->isProcessing = false;
     delete t;
 
     std::cout << "Slave node done training, written to RTs_Forest.txt" << std::endl;
