@@ -5,8 +5,6 @@
 #include <string>
 #include <float.h>
 #include <algorithm>
-#include <sys/types.h>
-#include <dirent.h>
 #include <functional>
 #include <future>
 #include <time.h>
@@ -20,7 +18,9 @@
 #include "rts_forest.hpp"
 #include "rts_tree.hpp"
 #include "concurrency.h"
+#include "nodeclass.h"
 
+//MASTER
 class myMosqConcrete : public myMosq {
     public:
     std::vector<int> publishedNodes;
@@ -28,16 +28,20 @@ class myMosqConcrete : public myMosq {
     std::set<int> availableNodesAtEnd;
     std::map<int, bool> nodes;
     std::function<void(int)> callback;
+    std::atomic<bool> stopThreadFlag;
+    Utils::Configs c;
     Utils::Timer t;
     bool firstAckReceived;
+    bool firstAckReceivedNodes;
     bool hasFailed;
-    myMosqConcrete(const char* id, const char * topic, const char* host, int port);
+    myMosqConcrete(const char* id, const char * topic, const char* host, int port, Utils::Configs c);
     bool receive_message(const struct mosquitto_message* message);
     void checkNodePayload(int n, std::string str);
     void distributedTest();
     int getClassNumberFromHistogram(int numberOfClasses, const float* histogram);
     void addHandler(std::function<void(int)> c);
-    void tester();
+    void publishedNodesTimeout(std::function<void()> f, int timeout);
+    void queryNodesTimeout(std::function<void(int)> f, int timeout);
     void checker();
     void sendSlavesQuery(std::string msg);
     void reset();

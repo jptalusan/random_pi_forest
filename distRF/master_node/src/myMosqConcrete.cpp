@@ -1,34 +1,42 @@
 #include "myMosqConcrete.h"
-
-myMosqConcrete::myMosqConcrete(const char* id, const char* _topic, const char* host, int port)
+//MASTER
+myMosqConcrete::myMosqConcrete(const char* id, const char* _topic, const char* host, int port, Utils::Configs c)
         : myMosq(id, _topic, host, port), publishedNodes(0) {
     std::cout << "Master node mqtt setup" << std::endl;
+    this->c = c;
     t = Utils::Timer();
     t.start();
     firstAckReceived = false;
     hasFailed = false;
+    stopThreadFlag = false;
+    firstAckReceivedNodes = false;
 }
 
-void myMosqConcrete::tester() {
+void myMosqConcrete::publishedNodesTimeout(std::function<void()> f, int TIMEOUT) {
     auto timeStart = clock();
     while (true)
     {
-        if ((clock() - timeStart) / CLOCKS_PER_SEC >= 10) {// time in seconds
-            this->callback(availableNodes.size());
+        //Stop timeout thread when a new forest is received. To prevent spurious timeouts and leaks?l
+        if (stopThreadFlag) {
+            firstAckReceived = false;
+            break;
+        }
+
+        if ((clock() - timeStart) / CLOCKS_PER_SEC >= TIMEOUT) {// time in seconds
+            std::cout << "Timed out publishedNodes: Proceeding with processing." << std::endl;
+            f();
             break;
         }
     }
 }
 
-//This will check if all nodes are still active, or one died in transit.
-void myMosqConcrete::checker() {
+void myMosqConcrete::queryNodesTimeout(std::function<void(int)> f, int TIMEOUT) {
     auto timeStart = clock();
     while (true)
     {
-        if ((clock() - timeStart) / CLOCKS_PER_SEC >= 5) {// time in seconds 
-            std::cout << "Something went wrong, need to re-do all." << std::endl;
-            this->reset();
-            sendSlavesQuery("start");
+        if ((clock() - timeStart) / CLOCKS_PER_SEC >= TIMEOUT) {// time in seconds
+            std::cout << "Timed out querynodes: Proceeding with processing." << std::endl;
+            f(availableNodes.size());
             break;
         }
     }
@@ -41,6 +49,8 @@ void myMosqConcrete::reset() {
     nodes.clear();
     firstAckReceived = false;
     hasFailed = false;
+    stopThreadFlag = false;
+    firstAckReceivedNodes = false;
 }
 
 /*
@@ -58,77 +68,56 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
     char* pchar = (char*)(message->payload);
     std::string msg(pchar);
 
-    if (message->payloadlen < 15) {
-        printf("From broker (%s, %s)\n", message->topic, pchar);
-    }
-    //Should also check the values of the message...
-
     std::string node("node");
-    //fix next time for now hardcoded
-    if (topic.find(node) != std::string::npos) {
+    if (topic.find(node) != std::string::npos) { //All messages from slave nodes
         int nodeIndex = topic.find(node) + node.length();
         int nodeNumber = std::stoi(topic.substr(nodeIndex, topic.length()));
         printf("Received message from node:%d\n", nodeNumber);
         if (topic.find("forest/node") != std::string::npos) {
-            //TODO: Check the effect of this
-            #pragma omp task// num_threads(1)
+            //std::thread t(&myMosqConcrete::checkNodePayload, this, nodeNumber, );
+            // stopThreadFlag = true;
+            #pragma omp task
             {
                 checkNodePayload(nodeNumber, msg);
             }
-        } else if (topic.find("ack/node") != std::string::npos) {
-            if (msg == "start") {
-                availableNodes.insert(nodeNumber);
-                nodes.insert(std::make_pair(nodeNumber, "true"));
-                std::cout << "out numberOfAvailableNodes: " << availableNodes.size() << std::endl;
-                if (!firstAckReceived) {
-                    firstAckReceived = true;
-                    std::thread t(&myMosqConcrete::tester, this);
-                    t.detach();
-                }
-            } else if (msg == "end") {
-                availableNodesAtEnd.insert(nodeNumber);
-            }
         } else if (topic.find("lastWill/node") != std::string::npos) {
-                nodes[nodeNumber] = false;
+            //TODO: Send data to next node in line (and continue waiting for timeout if not appear)
+            std::cout << topic << ":" << msg << std::endl;
+        } else if (topic.find("ack/node") != std::string::npos) { //Receive ack messages to count and call callback after timeout
+            //TODO: Just list all available, even reserves and store that information into struct with datatext name and node name (list
+            //OR: just move the sending of data.txt from main to here, easier)
+            std::cout << topic << ":" << msg << std::endl;
+            // std::thread t(&myMosqConcrete::timeout, this, this->callback, 10);
+
+            availableNodes.insert(nodeNumber);
+            // nodes.insert(std::make_pair(nodeNumber, "true"));
+            std::cout << "out numberOfAvailableNodes: " << availableNodes.size() << std::endl;
+            if (!firstAckReceivedNodes) {
+                std::cout << "trigger thread for availablenodes callback" << std::endl;
+                firstAckReceivedNodes = true;
+                std::thread t(&myMosqConcrete::queryNodesTimeout, this, this->callback, 10);
+                t.detach();
+            }
         }
-    } else {
+    } else { //flask messages
         return false;
     }
 
-    std::cout << "Published nodes size: " << publishedNodes.size() << std::endl;
-    std::cout << "nodes size: " << nodes.size() << std::endl;
-    for (auto p : nodes) {
-        std::cout << p.first << ":" << p.second << ", ";
-    }
-    std::cout << std::endl;
-
-    //TODO: check if any node sent a last will if they did, trigger reset and query start again
-    for (auto p : nodes) {
-        if (p.second == false) {
-            std::cout << "node: " << p.first << " has failed." << std::endl;
-            hasFailed = true;
-            break;
-        }
-    }
-
-    if (publishedNodes.size() == nodes.size() && !hasFailed) {
+    std::cout << publishedNodes.size() << ":" << c.numberOfNodes << std::endl;
+    if (publishedNodes.size() == unsigned(c.numberOfNodes)) {
         distributedTest();
-        t.stop();
-        this->reset();
+        this->stopThreadFlag = true;
     } else {
-        if (hasFailed) {
-            hasFailed = false;
-            // sendSlavesQuery("end");
-            //TODO: Find something better to use than sleep here
-            // std::this_thread::sleep_for(std::chrono::seconds(10));
-            
-            // std::thread t(&myMosqConcrete::checker, this);
-            // t.detach();
-            this->reset();
-            sendSlavesQuery("start");
+        //TODO: Start timeout countdown, maybe 5 minutes? (only start this once) and reset flag in reset()
+        //distributedTest should be called at the end of the countdown
+        if (!firstAckReceived) {
+            std::cout << "trigger thread for publishedNodes callback" << std::endl;
+            firstAckReceived = true;
+            std::function<void()> f = std::bind(&myMosqConcrete::distributedTest, this);
+            std::thread t(&myMosqConcrete::publishedNodesTimeout, this, f, 60);
+            t.detach();
         }
     }
-
     return true;
 }
 
@@ -153,6 +142,8 @@ void myMosqConcrete::checkNodePayload(int n, std::string str) {//, std::string t
 }
 
 void myMosqConcrete::distributedTest() {
+    this->stopThreadFlag = true;
+    std::cout << "distributedTest()" << std::endl;
     //Have to loop through all of the node list
     std::vector<std::vector<int>> scoreVectors;
     std::vector<int> correctLabel;
@@ -162,12 +153,16 @@ void myMosqConcrete::distributedTest() {
     getcwd(dir,255);
     // std::cout << dir << std::endl;
 
-    #pragma omp parallel num_threads(publishedNodes.size())
+    std::vector<std::string> files = Utils::FileList::listFilesWithNameAndExtension("RTs_Forest_", ".txt");
+
+    #pragma omp parallel num_threads(files.size())
     {
         int i = omp_get_thread_num();
         RTs::Forest rts_forest;
         std::stringstream ss;
-        ss << dir << "/RTs_Forest_" << i << ".txt";//double check
+        //TODO: Someproblem here if the available RTs forests are not sequentially. Just use same as main, and find all text files named RTs_Forest instead.
+        ss << dir << "/" << files[i];
+        // ss << dir << "/RTs_Forest_" << i << ".txt";//double check
         rts_forest.Load(ss.str());
         #pragma omp critical
         {
@@ -176,6 +171,7 @@ void myMosqConcrete::distributedTest() {
         ss.str(std::string());
     }
 
+    //TODO: Change to use configs
     Utils::Parser *p = new Utils::Parser();
     p->setClassColumn(1);
     std::vector<RTs::Sample> samples = p->readCSVToSamples("cleaned.csv");

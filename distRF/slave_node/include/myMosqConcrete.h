@@ -15,12 +15,14 @@
 #include <algorithm>
 #include "concurrency.h"
 #include <sys/types.h>
+#include <atomic>
 #include <dirent.h>
 
 class myMosqConcrete : public myMosq {
     public:
     Utils::Configs c;
-    bool isProcessing;
+    std::atomic<bool> isProcessing;
+    std::thread t1;
     myMosqConcrete(const char* id, const char * topic, const char* host, int port, Utils::Configs c);
     bool receive_message(const struct mosquitto_message* message);
     int train();

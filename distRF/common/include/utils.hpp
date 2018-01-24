@@ -16,8 +16,29 @@
 #include <memory>
 #include <array>
 #include <stdexcept>
+#include <sys/types.h>
+#include <dirent.h>
 
 namespace Utils {
+    class FileList {
+    public:
+        static std::vector<std::string> listFilesWithNameAndExtension(std::string name, std::string ext) {
+            std::vector<std::string> files;
+            std::string dirname = ".";
+            DIR* dirp = opendir(dirname.c_str());
+            struct dirent * dp;
+            while ((dp = readdir(dirp)) != NULL) {
+                //std::cout << dp->d_name;
+                std::string s(dp->d_name);
+                if (s.find(name) != std::string::npos &&
+                    s.find(ext) != std::string::npos)
+                    files.push_back(s);
+            }
+            closedir(dirp);
+            return files;
+        }
+    };
+
     class Configs {
     public:
         std::vector<std::string> nodeList;
@@ -30,6 +51,7 @@ namespace Utils {
         std::string mqttBroker;
         std::string nodeName;
         std::string topic;
+        int numberOfNodes;
 
         void setNodeList(const std::vector<std::string>& nodeList) {
             this->nodeList = nodeList;
@@ -37,7 +59,7 @@ namespace Utils {
 
         void setNumTrees(int numTrees) {
             this->numTrees = numTrees;
-        }        
+        }
 
         void setNumClass(int numClass) {
             this->numClass = numClass;
@@ -70,6 +92,10 @@ namespace Utils {
         void setMqttBroker(std::string mqttBroker) {
             this->mqttBroker = mqttBroker;
         }
+
+        void setNumberOfNodes(int numberOfNodes) {
+            this->numberOfNodes = numberOfNodes;
+        }
     };
     
     class Json {
@@ -98,6 +124,11 @@ namespace Utils {
             c.setMqttBroker(j["mqttBroker"]);
             c.setNodeName(j["nodeName"]);
             c.setTopic(j["topic"]);
+
+            if(j["numberOfNodes"] != nullptr) {
+                c.setNumberOfNodes(j["numberOfNodes"]);
+            }
+
             return c;
         }
 

@@ -1,5 +1,5 @@
 #include "myMosqConcrete.h"
-
+//SLAVE
 //Add flag that while processing, should not accept more message or do not process incoming
 myMosqConcrete::myMosqConcrete(const char* id, const char* _topic, const char* host, int port, Utils::Configs c)
         : myMosq(id, _topic, host, port) {
@@ -26,7 +26,10 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
     //TODO: might have problems with node1 and node 10,11  etc... should be equality not if contains
     if (receivedTopic.find("slave/" + this->c.nodeName) != std::string::npos) {
         std::cout << "Received data from master sent to: " + this->c.nodeName << std::endl;
-        initiateTraining(pchar);
+        if (!this->isProcessing) {
+            this->isProcessing = true;
+            initiateTraining(pchar);
+        }
     } else if (receivedTopic.find("flask/query") != std::string::npos) {
         std::string topic("flask/query");
 
@@ -52,33 +55,37 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
 
 void myMosqConcrete::initiateTraining(const char* pchar) {
     Utils::Command::exec("rm data* RTs_Forest*");
+    std::cout << "initiateTraining()";
     writeToFile(pchar, "data.txt");
     // サンプルデータの読み込み
-    //
-    Utils::Timer* t = new Utils::Timer();
-    t->start();
-    this->isProcessing = true;
-    train();
-    t->stop();
-    this->isProcessing = false;
-    delete t;
-
-    std::cout << "Slave node done training, written to RTs_Forest.txt" << std::endl;
-
-    //Train first before sending
-    //Read dataN.txt files to buffer and publish via MQTT.
-    //send to master topic in localhost
-    char dir[255];
-    getcwd(dir,255);
-    std::stringstream ss;
-    ss << dir << "/RTs_Forest.txt";
-    char* buffer = fileToBuffer(ss.str());
-
-    std::string topic("master/forest/" + c.nodeName);
     
-    std::cout << "Publishing to topic: " << topic << std::endl;
-    this->send_message(topic.c_str(), buffer);
-    delete[] buffer;
+    #pragma omp task// num_threads(1)
+    {
+        Utils::Timer* t = new Utils::Timer();
+        t->start();
+        train();
+        t->stop();
+        delete t;
+
+        std::cout << "Slave node done training, written to RTs_Forest.txt" << std::endl;
+
+        //Train first before sending
+        //Read dataN.txt files to buffer and publish via MQTT.
+        //send to master topic in localhost
+        char dir[255];
+        getcwd(dir,255);
+        std::stringstream ss;
+        ss << dir << "/RTs_Forest.txt";
+        char* buffer = fileToBuffer(ss.str());
+
+        std::string topic("master/forest/" + c.nodeName);
+        
+        std::cout << "Publishing to topic: " << topic << std::endl;
+        this->send_message(topic.c_str(), buffer);
+        delete[] buffer;
+
+        this->isProcessing = false;
+    }
 }
 
 //TODO: make arguments adjustable via argv and transfer code to pi to start distribution

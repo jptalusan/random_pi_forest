@@ -203,7 +203,7 @@ const float* Forest::EstimateClass(const Feature &feature_vec){
 #endif
 	if(trees.empty()){
 		// エラー：決定木が作成されていない
-		std::cout << " エラー：決定木が作成されていない" << std::endl;
+		std::cout << "Error: Decision tree not created" << std::endl;
 		return NULL;
 	}
 
