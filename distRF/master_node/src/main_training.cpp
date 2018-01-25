@@ -23,33 +23,23 @@ void implementRF(int numberOfNodes) {
     concurrentReads(numberOfNodes, data, v);
     //end concurrency test code, saves it into X number of dataN.txt files
 
-    //Testing directory scraper (lists all the dataN.txt files)
-
     std::vector<std::string> files = Utils::FileList::listFilesWithNameAndExtension("data", ".txt");
-    // std::string name = ".";
-    // DIR* dirp = opendir(name.c_str());
-    // struct dirent * dp;
-    // while ((dp = readdir(dirp)) != NULL) {
-    //     //std::cout << dp->d_name;
-    //     std::string s(dp->d_name);
-    //     if (s.find("data") != std::string::npos &&
-    //         s.find(".txt") != std::string::npos)
-    //         files.push_back(s);
-    // }
-    // closedir(dirp);
-    //end scraper
     
     int sizeOfFilesList = files.size();
     std::cout << "sizeOfFilesList: " << sizeOfFilesList << std::endl;
     #pragma omp parallel num_threads(sizeOfFilesList)
+    // int index = 0;
+    // for (auto s : files)
     {
+        // std::cout << "Sending training data to node" << index << std::endl;
         int index = omp_get_thread_num();
         std::string s(files[index]);
-        char* buffer = fileToBuffer(s);
+        std::string buffer = fileToBuffer(s);
         std::stringstream ss;
-        ss << "slave/node" << index;
+        ss << "slave/train/node" << index;
         // std::cout << "sending " << s << " to :" << ss.str() << std::endl;
-        m->send_message(ss.str().c_str(), buffer);
+        m->send_message(ss.str().c_str(), buffer.c_str());
+        index++;
     }
     //End of MQTT
 
@@ -58,11 +48,11 @@ void implementRF(int numberOfNodes) {
 
 void testCallback(int i) {
     std::cout << "Called back, total number of available nodes: " << i << std::endl;
-    implementRF(3); //TODO: Fix this, should use c.numberOfNode
+    implementRF(i);
 }
 
 int main(){
-    Utils::Json *json = new Utils::Json();
+    std::unique_ptr<Utils::Json> json(new Utils::Json());
     Utils::Configs c = json->parseJsonFile("configs.json");
 
     //Read dataN.txt files to buffer and publish via MQTT.
@@ -78,56 +68,13 @@ int main(){
     mymosq->addHandler(testCallback);
 
     //TODO: maybe change the topic for master?
-    std::string lastWillTopic("master/lastWill/" + c.nodeName);
-    mymosq->setupLastWill(lastWillTopic, "I am master and i am gone, goodbye.");
+    // std::string lastWillTopic("master/lastWill/" + c.nodeName);
+    // mymosq->setupLastWill(lastWillTopic, "I am master and i am gone, goodbye.");
     mymosq->connect();
 
     mymosq->sendSlavesQuery("start");
-    // std::cout << Utils::Command::exec("rm data* RTs_Forest*") << std::endl;
-    // std::vector<std::string> data = readFileToBuffer("cleaned.csv");
-
-    // std::vector<int> v(data.size());
-    // std::iota(v.begin(), v.end(), 0);
-    // std::random_device rd;
-    // std::mt19937 g(rd());
-    // std::shuffle(v.begin(), v.end(), g);
-    
-    // std::cout << "Concurrent reads(" << c.numberOfNodes << ")" << std::endl;
-    // concurrentReads(c.numberOfNodes, data, v);
-    // //end concurrency test code, saves it into X number of dataN.txt files
-
-    // //Testing directory scraper (lists all the dataN.txt files)
-    // std::vector<std::string> files;
-    // std::string name = ".";
-    // DIR* dirp = opendir(name.c_str());
-    // struct dirent * dp;
-    // while ((dp = readdir(dirp)) != NULL) {
-    //     //std::cout << dp->d_name;
-    //     std::string s(dp->d_name);
-    //     if (s.find("data") != std::string::npos &&
-    //         s.find(".txt") != std::string::npos)
-    //         files.push_back(s);
-    // }
-    // closedir(dirp);
-    // //end scraper
-    
-    // int sizeOfFilesList = files.size();
-    // #pragma omp parallel num_threads(sizeOfFilesList)
-    // {
-    //     int index = omp_get_thread_num();
-    //     std::string s(files[index]);
-    //     char* buffer = fileToBuffer(s);
-    //     std::stringstream ss;
-    //     ss << "slave/node" << index;
-    //     // std::cout << "sending " << s << " to :" << ss.str() << std::endl;
-    //     mymosq->send_message(ss.str().c_str(), buffer);
-    // }
-
-    #pragma omp task// num_threads(1)
-    {
-        mqtt_subscriber_thread(mymosq);
-    }
-    
+    std::thread t1(mqtt_subscriber_thread, mymosq);
+    t1.join();
     return 0;
 }
 

@@ -22,70 +22,76 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
     std::string nodeTopic = c.nodeName;
     std::string msg(pchar);
 
-    std::cout << receivedTopic << std::endl;
-    //TODO: might have problems with node1 and node 10,11  etc... should be equality not if contains
-    if (receivedTopic.find("slave/" + this->c.nodeName) != std::string::npos) {
-        std::cout << "Received data from master sent to: " + this->c.nodeName << std::endl;
-        if (!this->isProcessing) {
-            this->isProcessing = true;
-            initiateTraining(pchar);
-        }
-    } else if (receivedTopic.find("flask/query") != std::string::npos) {
-        std::string topic("flask/query");
-
-        std::vector<std::pair<std::string, std::string>> kv;
-
-        std::string ipaddress = Utils::Command::exec("hostname -I");
-
-        kv.push_back(std::make_pair("ipaddress", ipaddress.substr(0, ipaddress.find(" "))));
-        kv.push_back(std::make_pair("availability", this->isProcessing ? "busy" : "available"));
-        kv.push_back(std::make_pair("status", "slave"));
-        kv.push_back(std::make_pair("node", c.nodeName));
-        std::string json = Utils::Json::createJsonFile(kv);
-        
-        this->send_message(topic.c_str(), json.c_str());
-    } else if (receivedTopic.find("slave/query") != std::string::npos) {
-        std::string topic("master/ack/" + c.nodeName);
-        this->send_message(topic.c_str(), msg.c_str());
+    std::string forPrint = "";
+    if (message->payloadlen > 10) {
+        forPrint = msg.substr(0, 10);
+    } else {
+        forPrint = msg;
     }
-    //End of MQTT
+    std::cout << "t: " << receivedTopic << ", msg: " << forPrint << std::endl;
+    
+    std::string node("slave");
+    if (receivedTopic.find(node) != std::string::npos) { //All messages for slave nodes
+        unsigned int nodeIndex = receivedTopic.find("node");
+        if (nodeIndex != std::string::npos) { //Specifically for nodes
+            std::string nodeName(receivedTopic.substr(nodeIndex, receivedTopic.length()));
+            if (c.nodeName == nodeName) { //If for this node
+                std::cout << "nodename found in topic." << std::endl;
+                if (receivedTopic.find("train") != std::string::npos) {
+                    std::cout << "train found in topic." << std::endl;
+                    //Update flask or even master status as busy
+                    initiateTraining(pchar);
+                }
+            } //end for this node
+        } else if (receivedTopic.find("query/master") != std::string::npos) { //Broadcast message from master
+            std::string topic("master/ack/" + c.nodeName);
+            this->send_message(topic.c_str(), "ack");
+        } else if (receivedTopic.find("query/flask") != std::string::npos) {
+            std::string topic("flask/query/" + c.nodeName);
 
+            std::vector<std::pair<std::string, std::string>> kv;
+            std::string ipaddress = Utils::Command::exec("hostname -I");
+            kv.push_back(std::make_pair("ipaddress", ipaddress.substr(0, ipaddress.find(" "))));
+            kv.push_back(std::make_pair("availability", this->isProcessing ? "busy" : "available"));
+            kv.push_back(std::make_pair("status", "slave"));
+            kv.push_back(std::make_pair("node", c.nodeName));
+            std::string json = Utils::Json::createJsonFile(kv);
+            
+            this->send_message(topic.c_str(), json.c_str());
+        } else { //Not for this node
+            return false;
+        }
+    } else {
+        return false;
+    }
     return true;
 }
 
-void myMosqConcrete::initiateTraining(const char* pchar) {
+void myMosqConcrete::initiateTraining(const std::string pchar) {
     Utils::Command::exec("rm data* RTs_Forest*");
     std::cout << "initiateTraining()";
     writeToFile(pchar, "data.txt");
-    // サンプルデータの読み込み
+    Utils::Timer* t = new Utils::Timer();
+    t->start();
+    train();
+    t->stop();
+    delete t;
+
+    std::cout << "Slave node done training, written to RTs_Forest.txt" << std::endl;
+
+    //Train first before sending
+    //Read dataN.txt files to buffer and publish via MQTT.
+    //send to master topic in localhost
+    char dir[255];
+    getcwd(dir,255);
+    std::stringstream ss;
+    ss << dir << "/RTs_Forest.txt";
+    std::string buffer = fileToBuffer(ss.str());
+
+    std::string topic("master/forest/" + c.nodeName);
     
-    #pragma omp task// num_threads(1)
-    {
-        Utils::Timer* t = new Utils::Timer();
-        t->start();
-        train();
-        t->stop();
-        delete t;
-
-        std::cout << "Slave node done training, written to RTs_Forest.txt" << std::endl;
-
-        //Train first before sending
-        //Read dataN.txt files to buffer and publish via MQTT.
-        //send to master topic in localhost
-        char dir[255];
-        getcwd(dir,255);
-        std::stringstream ss;
-        ss << dir << "/RTs_Forest.txt";
-        char* buffer = fileToBuffer(ss.str());
-
-        std::string topic("master/forest/" + c.nodeName);
-        
-        std::cout << "Publishing to topic: " << topic << std::endl;
-        this->send_message(topic.c_str(), buffer);
-        delete[] buffer;
-
-        this->isProcessing = false;
-    }
+    std::cout << "Publishing to topic: " << topic << std::endl;
+    this->send_message(topic.c_str(), buffer.c_str());
 }
 
 //TODO: make arguments adjustable via argv and transfer code to pi to start distribution

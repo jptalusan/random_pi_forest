@@ -36,7 +36,14 @@ void myMosqConcrete::queryNodesTimeout(std::function<void(int)> f, int TIMEOUT) 
     {
         if ((clock() - timeStart) / CLOCKS_PER_SEC >= TIMEOUT) {// time in seconds
             std::cout << "Timed out querynodes: Proceeding with processing." << std::endl;
-            f(availableNodes.size());
+            int nodesToUse = 0;
+            if (availableNodes.size() < unsigned(c.numberOfNodes)) {
+                std::cout << "number of available nodes is less than number of nodes on config file." << std::endl;
+                nodesToUse = availableNodes.size();
+            } else {
+                nodesToUse = c.numberOfNodes;
+            }
+            f(nodesToUse);
             break;
         }
     }
@@ -68,12 +75,22 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
     char* pchar = (char*)(message->payload);
     std::string msg(pchar);
 
+    std::string forPrint = "";
+    if (message->payloadlen > 10) {
+        forPrint = msg.substr(0, 10);
+    } else {
+        forPrint = msg;
+    }
+
+    std::cout << "t: " << topic << ", msg: " << forPrint << std::endl;
+    
     std::string node("node");
     if (topic.find(node) != std::string::npos) { //All messages from slave nodes
         int nodeIndex = topic.find(node) + node.length();
         int nodeNumber = std::stoi(topic.substr(nodeIndex, topic.length()));
         printf("Received message from node:%d\n", nodeNumber);
         if (topic.find("forest/node") != std::string::npos) {
+
             //std::thread t(&myMosqConcrete::checkNodePayload, this, nodeNumber, );
             // stopThreadFlag = true;
             #pragma omp task
@@ -98,12 +115,13 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
                 std::thread t(&myMosqConcrete::queryNodesTimeout, this, this->callback, 10);
                 t.detach();
             }
+        } else {
+            std::cout << "ELSE" << std::endl;
         }
     } else { //flask messages
         return false;
     }
 
-    std::cout << publishedNodes.size() << ":" << c.numberOfNodes << std::endl;
     if (publishedNodes.size() == unsigned(c.numberOfNodes)) {
         distributedTest();
         this->stopThreadFlag = true;
@@ -114,7 +132,7 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
             std::cout << "trigger thread for publishedNodes callback" << std::endl;
             firstAckReceived = true;
             std::function<void()> f = std::bind(&myMosqConcrete::distributedTest, this);
-            std::thread t(&myMosqConcrete::publishedNodesTimeout, this, f, 60);
+            std::thread t(&myMosqConcrete::publishedNodesTimeout, this, f, 300);
             t.detach();
         }
     }
@@ -123,7 +141,7 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
 
 void myMosqConcrete::sendSlavesQuery(std::string msg) {
     //Query for available nodes
-    std::string queryTopic("slave/query");
+    std::string queryTopic("slave/query/master");
     send_message(queryTopic.c_str(), msg.c_str());
 }
 
@@ -137,7 +155,7 @@ void myMosqConcrete::checkNodePayload(int n, std::string str) {//, std::string t
         publishedNodes.push_back(n);
         std::stringstream rts;
         rts << "RTs_Forest_" << n << ".txt";
-        writeToFile(str.c_str(), rts.str());
+        writeToFile(str, rts.str());
     }
 }
 

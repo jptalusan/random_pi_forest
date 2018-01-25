@@ -43,6 +43,6 @@ class myMosq : public mosqpp::mosquittopp {
 };
 
 std::string GetCurrentWorkingDir(void);
-void writeToFile(const char* buffer, std::string fileName);
-char* fileToBuffer(std::string filename);
+void writeToFile(const std::string buffer, std::string fileName);
+std::string fileToBuffer(std::string filename);
 #endif

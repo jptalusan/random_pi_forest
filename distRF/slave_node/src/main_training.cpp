@@ -25,12 +25,6 @@ int main(){
     //MQTT Subscriber loop
     std::thread t1(mqtt_subscriber_thread, c.mqttBroker, c.topic, c);
     t1.join();
-
-    // #pragma omp task// num_threads(1)
-    // {
-    //     mqtt_subscriber_thread(c.mqttBroker, c.topic, c);
-    // }
-    
     //end of subscriber
 
     return 0;

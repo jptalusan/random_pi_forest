@@ -17,7 +17,7 @@ myMosq::~myMosq() {
 bool myMosq::send_message(const char* topic, const char* _message) {
     //this->message = _message;
     //publish(int* mid, char* topic, int payloadlen, void *payload, int qos, bool retain);
-    int ret = publish(NULL, topic, strlen(_message), _message, 1, false);
+    int ret = publish(NULL, topic, strlen(_message), _message, 2, false);
     return ( ret == MOSQ_ERR_SUCCESS );
 }
 
@@ -43,7 +43,7 @@ int myMosq::setupLastWill(const std::string topic, const std::string lastWillMes
 
     std::cout << "Last will topic:" << topic << ", msg:" << lastWillMessage<< std::endl;
     
-    rc = will_set(topic.c_str(), lastWillMessage.length(), lastWillMessage.c_str(), 0, false);
+    rc = will_set(topic.c_str(), lastWillMessage.length(), lastWillMessage.c_str(), 2, false);
 
     return rc;
 }
@@ -75,26 +75,10 @@ struct mosquitto_message{
 */
 void myMosq::on_message(const struct mosquitto_message *message) {
     receive_message(message);
-    /*
-    std::string topic(message->topic);
-
-    //This is where we handle messages received from subscription
-    //Need to count if all the slaves have responded before 
-    //getting the testing the random forest model
-    if (topic.find("master") != std::string::npos) {
-        std::cout << "Received data from slave node: " << str << std::endl;
-        std::cout << "Topic: " << topic << std::endl;
-
-        //Parse message here and use that to get the name of the node (topic to publish to)
-        writeToFile(str.c_str(), "output.txt");
-        std::string reply = "ACK";
-        publish(NULL, "slave/node1", reply.length(), reply.c_str(), 1, false);
-    }
-    */
 }
 
 void myMosq::on_subscribe(int mid, int qos_count, const int* granted_qos) {
-    std::cout << ">> subscription succeeded (" << mid << ") with qos: " << granted_qos << ", and count of: " << qos_count << std::endl;
+    std::cout << ">> subscription succeeded (" << mid << ") with qos: " << *granted_qos << ", and count of: " << qos_count << std::endl;
 }
 
 void myMosq::on_unsubscribe(int mid) {
@@ -104,7 +88,7 @@ void myMosq::on_unsubscribe(int mid) {
 
 bool myMosq::subscribe_to_topic() {
     //subscribe(int* mid, char* sub, int qos);
-    int ret = subscribe(NULL, this->topic, 1);
+    int ret = subscribe(NULL, this->topic, 2);
     return ( ret == MOSQ_ERR_SUCCESS );
 }
 std::string GetCurrentWorkingDir( void ) {
@@ -114,28 +98,20 @@ std::string GetCurrentWorkingDir( void ) {
   return current_working_dir;
 }
 
-void writeToFile(const char* buffer, std::string fileName) {
+void writeToFile(const std::string buffer, std::string fileName) {
     std::stringstream ss;
     ss <<  GetCurrentWorkingDir() << "/" << fileName;
-    std::ofstream outfile(ss.str(), std::ofstream::binary);
-    long size = strlen(buffer);
-    outfile.write(buffer, size);
+    std::ofstream outfile(ss.str());
+    outfile << buffer;
+    // unsigned size = buffer.length();
+    // outfile.write(buffer, size);
     //delete[] buffer;
     outfile.close();
 }
 
-char* fileToBuffer(std::string fileName) {
-    std::ifstream ifs(fileName, std::ifstream::binary);
-    std::filebuf* pbuf = ifs.rdbuf();
-    std::size_t size = pbuf->pubseekoff(0, ifs.end, ifs.in);
-    pbuf->pubseekpos (0, ifs.in);
-
-    char* buffer = new char[size];
-    pbuf->sgetn (buffer, size);
-    ifs.close();
-
-    int lines = std::count(buffer, buffer + size, '\n');
-
-    std::cout << lines << std::endl;
-    return buffer;
+std::string fileToBuffer(std::string fileName) {
+    std::ifstream ifs(fileName);
+    std::string content( (std::istreambuf_iterator<char>(ifs) ),
+                       (std::istreambuf_iterator<char>()    ) );
+    return content;
 }
