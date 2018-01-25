@@ -151,6 +151,10 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
                 checkNodePayload(receivedNodeNumber, msg);
             }
         } else if (topic.find("lastWill/node") != std::string::npos) {
+            //Just exit and do nothing when no available nodes yet.
+            if (availableNodes.size() == 0) {
+                return false;
+            }
             //TODO: Send data to next node in line (and continue waiting for timeout if not appear)
             //If node that died is on the list, then pass the data to the others and remove from list
             std::cout << topic << ":" << msg << std::endl;
