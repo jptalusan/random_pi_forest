@@ -29,6 +29,7 @@ class myMosqConcrete : public myMosq {
     std::map<int, bool> nodes;
     std::function<void(int)> callback;
     std::atomic<bool> stopThreadFlag;
+    std::vector<NodeClass> nodeClassList;
     Utils::Configs c;
     Utils::Timer t;
     bool firstAckReceived;
@@ -41,10 +42,11 @@ class myMosqConcrete : public myMosq {
     int getClassNumberFromHistogram(int numberOfClasses, const float* histogram);
     void addHandler(std::function<void(int)> c);
     void publishedNodesTimeout(std::function<void()> f, int timeout);
-    void queryNodesTimeout(std::function<void(int)> f, int timeout);
+    void queryNodesTimeout(std::function<std::vector<NodeClass>()> f, int timeout);
     void checker();
     void sendSlavesQuery(std::string msg);
     void reset();
+    std::vector<NodeClass> generateNodeAndDataList();
 };
 
 

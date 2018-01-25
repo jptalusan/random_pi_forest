@@ -5,7 +5,7 @@
 
 struct NodeClass {
 public:
-    std::string ndoeName;
+    int nodeNumber;
     std::string dataTextfileName;
 };
 

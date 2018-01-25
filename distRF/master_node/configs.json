@@ -9,5 +9,5 @@
     "nodeName": "master",
     "mqttBroker": "163.221.68.234",
     "topic": "master/+/#",
-    "numberOfNodes": 3
+    "numberOfNodes": 2
 }

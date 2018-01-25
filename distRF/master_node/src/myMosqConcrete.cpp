@@ -30,26 +30,20 @@ void myMosqConcrete::publishedNodesTimeout(std::function<void()> f, int TIMEOUT)
     }
 }
 
-void myMosqConcrete::queryNodesTimeout(std::function<void(int)> f, int TIMEOUT) {
+void myMosqConcrete::queryNodesTimeout(std::function<std::vector<NodeClass>()> f, int TIMEOUT) {
     auto timeStart = clock();
     while (true)
     {
         if ((clock() - timeStart) / CLOCKS_PER_SEC >= TIMEOUT) {// time in seconds
             std::cout << "Timed out querynodes: Proceeding with processing." << std::endl;
-            int nodesToUse = 0;
-            if (availableNodes.size() < unsigned(c.numberOfNodes)) {
-                std::cout << "number of available nodes is less than number of nodes on config file." << std::endl;
-                nodesToUse = availableNodes.size();
-            } else {
-                nodesToUse = c.numberOfNodes;
-            }
-            f(nodesToUse);
+            nodeClassList = f();
             break;
         }
     }
 }
 
 void myMosqConcrete::reset() {
+    nodeClassList.clear();
     publishedNodes.clear();
     availableNodes.clear();
     availableNodesAtEnd.clear();
@@ -58,6 +52,64 @@ void myMosqConcrete::reset() {
     hasFailed = false;
     stopThreadFlag = false;
     firstAckReceivedNodes = false;
+}
+
+//Will look through all available nodes and only use the number stated by the configs
+//Remaining nodes will be reserves in case the other nodes fail
+std::vector<NodeClass> myMosqConcrete::generateNodeAndDataList() {
+    std::cout << "Trying to identify reserves and used nodes..." << std::endl;
+    std::cout << Utils::Command::exec("rm data* RTs_Forest*") << std::endl;
+    std::vector<std::string> data = readFileToBuffer("cleaned.csv");
+
+    std::vector<int> v(data.size());
+    std::iota(v.begin(), v.end(), 0);
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(v.begin(), v.end(), g);
+    
+    int numberOfAvailableNodes = this->availableNodes.size();
+
+    if (numberOfAvailableNodes < c.numberOfNodes) {
+        std::cout << "Warning: number of available nodes are less than the setting in config.json, please adjust." << std::endl;
+    } else {
+        numberOfAvailableNodes = c.numberOfNodes;
+    }
+
+    concurrentReads(numberOfAvailableNodes, data, v);
+    
+    std::vector<std::string> files = Utils::FileList::listFilesWithNameAndExtension("data", ".txt");
+    int sizeOfFilesList = files.size();
+
+    std::set<int>::iterator it = this->availableNodes.begin();
+
+    std::vector<NodeClass> ncVec;
+    for (int i = 0; i < sizeOfFilesList; ++i) {
+        NodeClass nc;
+        nc.nodeNumber = *it;
+        nc.dataTextfileName = files[i];
+        ncVec.push_back(nc);
+        this->availableNodes.erase(it);
+        ++it;
+    }
+
+    for (auto n : this->availableNodes) {
+        std::cout << "Reserves: " << n << std::endl;
+    }
+
+    for (auto nc : ncVec) {
+        std::cout << "Used node: " << nc.nodeNumber << ", for file: " << nc.dataTextfileName << std::endl;
+    }
+
+    #pragma omp parallel num_threads(sizeOfFilesList)
+    {
+        int index = omp_get_thread_num();
+        std::string buffer = fileToBuffer(ncVec[index].dataTextfileName);
+        std::stringstream ss;
+        ss << "slave/train/node" << ncVec[index].nodeNumber;
+        send_message(ss.str().c_str(), buffer.c_str());
+        index++;
+    }
+    return ncVec;
 }
 
 /*
@@ -83,36 +135,83 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
     }
 
     std::cout << "t: " << topic << ", msg: " << forPrint << std::endl;
-    
+    if (topic.find("master/start/flask") != std::string::npos) {
+        sendSlavesQuery("start");
+        return true;
+    }
+
     std::string node("node");
     if (topic.find(node) != std::string::npos) { //All messages from slave nodes
         int nodeIndex = topic.find(node) + node.length();
-        int nodeNumber = std::stoi(topic.substr(nodeIndex, topic.length()));
-        printf("Received message from node:%d\n", nodeNumber);
+        int receivedNodeNumber = std::stoi(topic.substr(nodeIndex, topic.length()));
+        printf("Received message from node:%d\n", receivedNodeNumber);
         if (topic.find("forest/node") != std::string::npos) {
-
-            //std::thread t(&myMosqConcrete::checkNodePayload, this, nodeNumber, );
-            // stopThreadFlag = true;
             #pragma omp task
             {
-                checkNodePayload(nodeNumber, msg);
+                checkNodePayload(receivedNodeNumber, msg);
             }
         } else if (topic.find("lastWill/node") != std::string::npos) {
             //TODO: Send data to next node in line (and continue waiting for timeout if not appear)
+            //If node that died is on the list, then pass the data to the others and remove from list
             std::cout << topic << ":" << msg << std::endl;
+            std::cout << "Received node number: " << receivedNodeNumber << std::endl;
+            //debug list
+            for (auto nc : this->nodeClassList) {
+                std::cout << "node: " << nc.nodeNumber << ", file: " << nc.dataTextfileName << std::endl;
+            }
+
+            auto it = find_if(this->nodeClassList.begin(), this->nodeClassList.end(), [receivedNodeNumber](const NodeClass& n){
+                return n.nodeNumber == receivedNodeNumber;
+            });
+
+            if (it != nodeClassList.end()) {
+                std::cout << it->dataTextfileName << std::endl;
+            } else {
+                std::cout << "Not found!" << std::endl;
+            }
+
+            //get from reserve and then erase that node from reserve list, put it into nodeclasslist
+            NodeClass replacementNode;
+            if (this->availableNodes.size() > 0) {
+                auto anIt = this->availableNodes.begin();
+                std::cout << "Available node is: " << *anIt << std::endl;
+
+                replacementNode.nodeNumber = *anIt;
+                replacementNode.dataTextfileName = it->dataTextfileName;
+
+                this->nodeClassList.erase(it);
+                this->availableNodes.erase(anIt);
+            } else {
+                std::cout << "No more available reserves..." << std::endl;
+            }
+
+            std::cout << "New node: " << replacementNode.nodeNumber << " with text: " << replacementNode.dataTextfileName << std::endl;
+            //Sending new message
+            #pragma omp task
+            {
+                std::string buffer = fileToBuffer(replacementNode.dataTextfileName);
+                std::stringstream ss;
+                ss << "slave/train/node" << replacementNode.nodeNumber;
+                send_message(ss.str().c_str(), buffer.c_str());
+            }
+
+            //debug
+            this->nodeClassList.push_back(replacementNode);
+            for (auto nc : this->nodeClassList) {
+                std::cout << "node: " << nc.nodeNumber << ", file: " << nc.dataTextfileName << std::endl;
+            }
+
+
         } else if (topic.find("ack/node") != std::string::npos) { //Receive ack messages to count and call callback after timeout
             //TODO: Just list all available, even reserves and store that information into struct with datatext name and node name (list
             //OR: just move the sending of data.txt from main to here, easier)
-            std::cout << topic << ":" << msg << std::endl;
-            // std::thread t(&myMosqConcrete::timeout, this, this->callback, 10);
-
-            availableNodes.insert(nodeNumber);
-            // nodes.insert(std::make_pair(nodeNumber, "true"));
-            std::cout << "out numberOfAvailableNodes: " << availableNodes.size() << std::endl;
+            this->availableNodes.insert(receivedNodeNumber);
+            std::cout << "out numberOfAvailableNodes: " << this->availableNodes.size() << std::endl;
             if (!firstAckReceivedNodes) {
                 std::cout << "trigger thread for availablenodes callback" << std::endl;
                 firstAckReceivedNodes = true;
-                std::thread t(&myMosqConcrete::queryNodesTimeout, this, this->callback, 10);
+                std::function<std::vector<NodeClass>()> f = std::bind(&myMosqConcrete::generateNodeAndDataList, this);
+                std::thread t(&myMosqConcrete::queryNodesTimeout, this, f, 10);
                 t.detach();
             }
         } else {
@@ -214,8 +313,9 @@ void myMosqConcrete::distributedTest() {
 
     Utils::TallyScores *ts = new Utils::TallyScores();
     ts->checkScores(correctLabel, scoreVectors);
-
     delete ts;
+    //Clear all variables? even for reserves?
+    reset();
 }
 
 int myMosqConcrete::getClassNumberFromHistogram(int numberOfClasses, const float* histogram) {
