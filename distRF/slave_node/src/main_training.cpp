@@ -21,7 +21,6 @@ void mqtt_subscriber_thread(std::string host, std::string topic, Utils::Configs 
 int main(){
     Utils::Json *json = new Utils::Json();
     Utils::Configs c = json->parseJsonFile("configs.json");
-
     //MQTT Subscriber loop
     std::thread t1(mqtt_subscriber_thread, c.mqttBroker, c.topic, c);
     t1.join();

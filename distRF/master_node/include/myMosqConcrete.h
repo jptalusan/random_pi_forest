@@ -29,6 +29,7 @@ class myMosqConcrete : public myMosq {
     std::map<int, bool> nodes;
     std::function<void(int)> callback;
     std::atomic<bool> stopThreadFlag;
+    std::atomic<bool> isProcessing;
     std::vector<NodeClass> nodeClassList;
     Utils::Configs c;
     Utils::Timer t;
@@ -47,6 +48,7 @@ class myMosqConcrete : public myMosq {
     void sendSlavesQuery(std::string msg);
     void reset();
     std::vector<NodeClass> generateNodeAndDataList();
+    void updateFlask(std::string topic, std::string availability);
 };
 
 

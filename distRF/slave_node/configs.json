@@ -8,5 +8,6 @@
     "dataPerTree": 0.25,
     "nodeName": "node0",
     "mqttBroker": "163.221.68.234",
-    "topic":"slave/+/#"
+    "topic":"slave/+/#",
+    "masterNode": "master0"
 }

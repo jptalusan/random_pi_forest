@@ -52,6 +52,7 @@ namespace Utils {
         std::string nodeName;
         std::string topic;
         int numberOfNodes;
+        std::string masterNode;
 
         void setNodeList(const std::vector<std::string>& nodeList) {
             this->nodeList = nodeList;
@@ -96,6 +97,10 @@ namespace Utils {
         void setNumberOfNodes(int numberOfNodes) {
             this->numberOfNodes = numberOfNodes;
         }
+
+        void setMasterNode(std::string masterNode) {
+            this->masterNode = masterNode;
+        }
     };
     
     class Json {
@@ -125,8 +130,14 @@ namespace Utils {
             c.setNodeName(j["nodeName"]);
             c.setTopic(j["topic"]);
 
+            //for master only
             if(j["numberOfNodes"] != nullptr) {
                 c.setNumberOfNodes(j["numberOfNodes"]);
+            }
+
+            //For slave only
+            if(j["masterNode"] != nullptr) {
+                c.setMasterNode(j["masterNode"]);
             }
 
             return c;

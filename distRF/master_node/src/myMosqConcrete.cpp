@@ -10,6 +10,9 @@ myMosqConcrete::myMosqConcrete(const char* id, const char* _topic, const char* h
     hasFailed = false;
     stopThreadFlag = false;
     firstAckReceivedNodes = false;
+    std::string topic("flask/query/" + c.nodeName);
+    updateFlask(topic, "available");
+    this->isProcessing = false;
 }
 
 void myMosqConcrete::publishedNodesTimeout(std::function<void()> f, int TIMEOUT) {
@@ -24,7 +27,11 @@ void myMosqConcrete::publishedNodesTimeout(std::function<void()> f, int TIMEOUT)
 
         if ((clock() - timeStart) / CLOCKS_PER_SEC >= TIMEOUT) {// time in seconds
             std::cout << "Timed out publishedNodes: Proceeding with processing." << std::endl;
-            f();
+            std::string topic("flask/query/" + c.nodeName);
+            updateFlask(topic, "busy");
+            std::thread t(f);
+            t.detach();
+            // f();
             break;
         }
     }
@@ -52,6 +59,7 @@ void myMosqConcrete::reset() {
     hasFailed = false;
     stopThreadFlag = false;
     firstAckReceivedNodes = false;
+    this->isProcessing = false;
 }
 
 //Will look through all available nodes and only use the number stated by the configs
@@ -138,7 +146,10 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
     if (topic.find("master/start/flask") != std::string::npos) {
         sendSlavesQuery("start");
         return true;
-    }
+    } else if (topic.find("query/flask") != std::string::npos) {
+        std::string topic("flask/query/" + c.nodeName);
+        updateFlask(topic, this->isProcessing ? "busy" : "available");
+    } 
 
     std::string node("node");
     if (topic.find(node) != std::string::npos) { //All messages from slave nodes
@@ -226,7 +237,12 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
     }
 
     if (publishedNodes.size() == unsigned(c.numberOfNodes)) {
-        distributedTest();
+        std::string topic("flask/query/" + c.nodeName);
+        this->isProcessing = true;
+        updateFlask(topic, "busy");
+        // distributedTest();
+        std::thread t(&myMosqConcrete::distributedTest, this);
+        t.detach();
         this->stopThreadFlag = true;
     } else {
         //TODO: Start timeout countdown, maybe 5 minutes? (only start this once) and reset flag in reset()
@@ -253,13 +269,15 @@ void myMosqConcrete::checkNodePayload(int n, std::string str) {//, std::string t
     std::stringstream ss;
     ss << "Receiving node " << n << " message...";
     std::cout << ss.str() << std::endl;
-
+    this->isProcessing = true;
+    //TODO: Maybe send update here and after the loop?
     if (std::find(publishedNodes.begin(), publishedNodes.end(), n) == publishedNodes.end()) {
         publishedNodes.push_back(n);
         std::stringstream rts;
         rts << "RTs_Forest_" << n << ".txt";
         writeToFile(str, rts.str());
     }
+    this->isProcessing = false;
 }
 
 void myMosqConcrete::distributedTest() {
@@ -320,6 +338,9 @@ void myMosqConcrete::distributedTest() {
     delete ts;
     //Clear all variables? even for reserves?
     reset();
+    this->isProcessing = false;
+    updateFlask("flask/query/" + c.nodeName, "available");
+    t.stop();
 }
 
 int myMosqConcrete::getClassNumberFromHistogram(int numberOfClasses, const float* histogram) {
@@ -340,4 +361,16 @@ int myMosqConcrete::getClassNumberFromHistogram(int numberOfClasses, const float
 void myMosqConcrete::addHandler(std::function<void(int)> callback) {
     printf("Handler added.\n");
     this->callback = callback;
+}
+
+void myMosqConcrete::updateFlask(std::string topic, std::string availability) {
+    std::vector<std::pair<std::string, std::string>> kv;
+        std::string ipaddress = Utils::Command::exec("hostname -I");
+        kv.push_back(std::make_pair("ipaddress", ipaddress.substr(0, ipaddress.find(" "))));
+        kv.push_back(std::make_pair("status", availability));
+        kv.push_back(std::make_pair("datafile", "cleaned.csv"));
+        kv.push_back(std::make_pair("nodename", c.nodeName));
+        std::string json = Utils::Json::createJsonFile(kv);
+        
+        this->send_message(topic.c_str(), json.c_str());
 }

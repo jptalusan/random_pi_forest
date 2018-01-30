@@ -27,6 +27,7 @@ class myMosqConcrete : public myMosq {
     bool receive_message(const struct mosquitto_message* message);
     int train();
     void initiateTraining(const std::string message);
+    void updateFlask(std::string topic, std::string availability);
 };
 
 #endif

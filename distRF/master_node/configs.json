@@ -6,7 +6,7 @@
     "featureTrials": 50,
     "thresholdTrials": 5,
     "dataPerTree": 0.25,
-    "nodeName": "master",
+    "nodeName": "master0",
     "mqttBroker": "163.221.68.234",
     "topic": "master/+/#",
     "numberOfNodes": 2

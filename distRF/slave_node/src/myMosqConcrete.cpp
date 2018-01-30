@@ -6,6 +6,7 @@ myMosqConcrete::myMosqConcrete(const char* id, const char* _topic, const char* h
     this->c = c;
     //mosquitto_will_set(myMosq, NULL, 0, NULL, 0, false)
     std::cout << "Setup of mosquitto." << std::endl;
+    updateFlask("flask/query/" + c.nodeName, "available");
 }
 
 // struct mosquitto_message{
@@ -39,25 +40,18 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
                 std::cout << "nodename found in topic." << std::endl;
                 if (receivedTopic.find("train") != std::string::npos) {
                     std::cout << "train found in topic." << std::endl;
-                    //Update flask or even master status as busy
-                    initiateTraining(pchar);
+                    //OR PUT THIS IN THREAD!
+                    // initiateTraining(msg);
+                    std::thread t(&myMosqConcrete::initiateTraining, this, msg);
+                    t.detach();
+                    updateFlask("flask/query/" + c.nodeName, "busy");
                 }
             } //end for this node
         } else if (receivedTopic.find("query/master") != std::string::npos) { //Broadcast message from master
             std::string topic("master/ack/" + c.nodeName);
             this->send_message(topic.c_str(), "ack");
         } else if (receivedTopic.find("query/flask") != std::string::npos) {
-            std::string topic("flask/query/" + c.nodeName);
-
-            std::vector<std::pair<std::string, std::string>> kv;
-            std::string ipaddress = Utils::Command::exec("hostname -I");
-            kv.push_back(std::make_pair("ipaddress", ipaddress.substr(0, ipaddress.find(" "))));
-            kv.push_back(std::make_pair("availability", this->isProcessing ? "busy" : "available"));
-            kv.push_back(std::make_pair("status", "slave"));
-            kv.push_back(std::make_pair("node", c.nodeName));
-            std::string json = Utils::Json::createJsonFile(kv);
-            
-            this->send_message(topic.c_str(), json.c_str());
+            updateFlask("flask/query/" + c.nodeName, this->isProcessing ? "busy" : "available");
         } else { //Not for this node
             return false;
         }
@@ -68,6 +62,7 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
 }
 
 void myMosqConcrete::initiateTraining(const std::string pchar) {
+    this->isProcessing = true;
     Utils::Command::exec("rm data* RTs_Forest*");
     std::cout << "initiateTraining()";
     writeToFile(pchar, "data.txt");
@@ -92,6 +87,9 @@ void myMosqConcrete::initiateTraining(const std::string pchar) {
     
     std::cout << "Publishing to topic: " << topic << std::endl;
     this->send_message(topic.c_str(), buffer.c_str());
+
+    this->isProcessing = false;
+    updateFlask("flask/query/" + c.nodeName, "availabile");
 }
 
 //TODO: make arguments adjustable via argv and transfer code to pi to start distribution
@@ -133,4 +131,18 @@ int myMosqConcrete::train() {
     }
 
     return 0;
+}
+
+void myMosqConcrete::updateFlask(std::string topic, std::string availability) {
+    std::vector<std::pair<std::string, std::string>> kv;
+    std::string ipaddress = Utils::Command::exec("hostname -I");
+    kv.push_back(std::make_pair("ipaddress", ipaddress.substr(0, ipaddress.find(" "))));
+    kv.push_back(std::make_pair("status", availability));
+    //TODO: Get the file in here? or assigned by master
+    kv.push_back(std::make_pair("datafile", "empty"));
+    kv.push_back(std::make_pair("nodename", c.nodeName));
+    kv.push_back(std::make_pair("master", c.masterNode));
+    std::string json = Utils::Json::createJsonFile(kv);
+    
+    this->send_message(topic.c_str(), json.c_str());
 }

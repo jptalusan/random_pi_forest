@@ -49,7 +49,8 @@ int myMosq::setupLastWill(const std::string topic, const std::string lastWillMes
 }
 
 void myMosq::connect() {
-    connect_async(this->host, this->port, this->keepalive);
+    // connect_async(this->host, this->port, this->keepalive);
+    mosqpp::mosquittopp::connect(this->host, this->port, this->keepalive);
     loop_start();
 }
 /*
