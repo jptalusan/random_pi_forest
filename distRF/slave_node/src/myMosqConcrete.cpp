@@ -52,6 +52,17 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
             this->send_message(topic.c_str(), "ack");
         } else if (receivedTopic.find("query/flask") != std::string::npos) {
             updateFlask("flask/query/" + c.nodeName, this->isProcessing ? "busy" : "available");
+        } else if (receivedTopic.find("config") != std::string::npos) {
+            //jq command: jq \'. + {{{0}}}\' configs.json > configs.tmp && mv configs.tmp configs.json
+
+            const std::string& command("jq '. + {" + msg + "}' configs.json > configs.tmp && mv configs.tmp configs.json");
+            std::cout << "command: " << command << std::endl;
+            Utils::Command::exec(command.c_str());
+            Utils::Json json = Utils::Json();
+            this->c = json.parseJsonFile("configs.json");
+            std::cout << Utils::Command::exec("cat configs.json");
+            //Utils::Command::exec("jq ");
+            // std::cout << Utils::Command::exec("ls") << std::endl;
         } else { //Not for this node
             return false;
         }

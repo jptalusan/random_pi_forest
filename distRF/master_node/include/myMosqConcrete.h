@@ -33,6 +33,7 @@ class myMosqConcrete : public myMosq {
     std::vector<NodeClass> nodeClassList;
     Utils::Configs c;
     Utils::Timer t;
+    std::string reservedForValidation;
     bool firstAckReceived;
     bool firstAckReceivedNodes;
     bool hasFailed;

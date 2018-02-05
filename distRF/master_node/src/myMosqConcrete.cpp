@@ -84,6 +84,8 @@ std::vector<NodeClass> myMosqConcrete::generateNodeAndDataList() {
         numberOfAvailableNodes = c.numberOfNodes;
     }
 
+    //Try to reserve one extra data_.txt for leave N out validation
+    // concurrentReads(numberOfAvailableNodes + 1, data, v);
     concurrentReads(numberOfAvailableNodes, data, v);
     
     std::vector<std::string> files = Utils::FileList::listFilesWithNameAndExtension("data", ".txt");
@@ -91,7 +93,9 @@ std::vector<NodeClass> myMosqConcrete::generateNodeAndDataList() {
 
     std::set<int>::iterator it = this->availableNodes.begin();
 
+    //Added - 1 for leave N
     std::vector<NodeClass> ncVec;
+    // for (int i = 0; i < sizeOfFilesList - 1; ++i) {
     for (int i = 0; i < sizeOfFilesList; ++i) {
         NodeClass nc;
         nc.nodeNumber = *it;
@@ -101,6 +105,8 @@ std::vector<NodeClass> myMosqConcrete::generateNodeAndDataList() {
         ++it;
     }
 
+    //reservedForValidation = files[sizeOfFilesList - 1];
+
     for (auto n : this->availableNodes) {
         std::cout << "Reserves: " << n << std::endl;
     }
@@ -109,6 +115,8 @@ std::vector<NodeClass> myMosqConcrete::generateNodeAndDataList() {
         std::cout << "Used node: " << nc.nodeNumber << ", for file: " << nc.dataTextfileName << std::endl;
     }
 
+    // -1 for leave n out
+    // #pragma omp parallel num_threads(sizeOfFilesList - 1)
     #pragma omp parallel num_threads(sizeOfFilesList)
     {
         int index = omp_get_thread_num();
@@ -315,6 +323,8 @@ void myMosqConcrete::distributedTest() {
     Utils::Parser *p = new Utils::Parser();
     std::cout << "classificationColumn: " << c.classificationColumn << std::endl;
     p->setClassColumn(c.classificationColumn);
+    // std::cout << "trainingDataFileName: " << reservedForValidation << std::endl;
+    // std::vector<RTs::Sample> samples = p->readCSVToSamples(reservedForValidation);
     std::cout << "trainingDataFileName: " << c.trainingDataFileName << std::endl;
     std::vector<RTs::Sample> samples = p->readCSVToSamples(c.trainingDataFileName);
 
