@@ -4,7 +4,7 @@ out=$(sudo batctl o | wc -l)
 ifBatExists=$(ip a show bat0 up | wc -l)
 force=$1
 echo "$ifBatExists"
-if [ "$ifBatExists" -gt 1 ] && [ "$out" -gt 2 ] && [ -z "$force" ]; then
+if [ "$ifBatExists" -gt 1 ] && [ "$out" -gt 2 ] && [ "$force" -eq "0" ]; then
     echo "Already setup batman!"
 else
     echo "starting batman"
