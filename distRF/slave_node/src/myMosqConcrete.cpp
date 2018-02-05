@@ -97,7 +97,8 @@ int myMosqConcrete::train() {
     std::cout << "start training" << std::endl;
     Utils::Parser *p = new Utils::Parser();
     //can also put the class column info into config
-    p->setClassColumn(1);
+    std::cout << "classificationColumn: " << this->c.classificationColumn << std::endl;
+    p->setClassColumn(c.classificationColumn);
     std::vector<RTs::Sample> samples;
 
     char dir[255];

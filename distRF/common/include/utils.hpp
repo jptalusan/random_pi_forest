@@ -53,6 +53,8 @@ namespace Utils {
         std::string topic;
         int numberOfNodes;
         std::string masterNode;
+        int classificationColumn;
+        std::string trainingDataFileName;
 
         void setNodeList(const std::vector<std::string>& nodeList) {
             this->nodeList = nodeList;
@@ -101,6 +103,14 @@ namespace Utils {
         void setMasterNode(std::string masterNode) {
             this->masterNode = masterNode;
         }
+
+        void setClassificationColumn(int classificationColumn) {
+            this->classificationColumn = classificationColumn;
+        }
+
+        void setTrainingDataFileName(std::string trainingDataFileName) {
+            this->trainingDataFileName = trainingDataFileName;
+        }
     };
     
     class Json {
@@ -140,6 +150,13 @@ namespace Utils {
                 c.setMasterNode(j["masterNode"]);
             }
 
+            if(j["trainingDataFileName"] != nullptr) {
+                c.setTrainingDataFileName(j["trainingDataFileName"]);
+            }
+
+            if(j["classificationColumn"] != nullptr) {
+                c.setClassificationColumn(j["classificationColumn"]);
+            }
             return c;
         }
 

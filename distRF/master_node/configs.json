@@ -9,5 +9,7 @@
     "nodeName": "master0",
     "mqttBroker": "163.221.68.234",
     "topic": "master/+/#",
-    "numberOfNodes": 2
+    "numberOfNodes": 2,
+    "setClassificationColumn": 1,
+    "trainingDataFileName": "cleaned.csv"
 }

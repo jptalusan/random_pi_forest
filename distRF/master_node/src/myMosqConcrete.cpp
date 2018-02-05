@@ -67,7 +67,8 @@ void myMosqConcrete::reset() {
 std::vector<NodeClass> myMosqConcrete::generateNodeAndDataList() {
     std::cout << "Trying to identify reserves and used nodes..." << std::endl;
     std::cout << Utils::Command::exec("rm data* RTs_Forest*") << std::endl;
-    std::vector<std::string> data = readFileToBuffer("cleaned.csv");
+    std::cout << "trainingDataFileName: " << c.trainingDataFileName << std::endl;
+    std::vector<std::string> data = readFileToBuffer(c.trainingDataFileName);
 
     std::vector<int> v(data.size());
     std::iota(v.begin(), v.end(), 0);
@@ -312,8 +313,10 @@ void myMosqConcrete::distributedTest() {
 
     //TODO: Change to use configs
     Utils::Parser *p = new Utils::Parser();
-    p->setClassColumn(1);
-    std::vector<RTs::Sample> samples = p->readCSVToSamples("cleaned.csv");
+    std::cout << "classificationColumn: " << c.classificationColumn << std::endl;
+    p->setClassColumn(c.classificationColumn);
+    std::cout << "trainingDataFileName: " << c.trainingDataFileName << std::endl;
+    std::vector<RTs::Sample> samples = p->readCSVToSamples(c.trainingDataFileName);
 
     //Too many loops for testing
     //Need to change checkScores func to just accept the samples vector (too large? const)
@@ -368,7 +371,7 @@ void myMosqConcrete::updateFlask(std::string topic, std::string availability) {
         std::string ipaddress = Utils::Command::exec("hostname -I");
         kv.push_back(std::make_pair("ipaddress", ipaddress.substr(0, ipaddress.find(" "))));
         kv.push_back(std::make_pair("status", availability));
-        kv.push_back(std::make_pair("datafile", "cleaned.csv"));
+        kv.push_back(std::make_pair("datafile", c.trainingDataFileName));
         kv.push_back(std::make_pair("nodename", c.nodeName));
         std::string json = Utils::Json::createJsonFile(kv);
         

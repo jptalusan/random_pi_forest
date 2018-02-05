@@ -9,5 +9,7 @@
     "nodeName": "node0",
     "mqttBroker": "163.221.68.234",
     "topic":"slave/+/#",
-    "masterNode": "master0"
+    "masterNode": "master0",
+    "numberOfNodes": 3,
+    "classificationColumn": 1
 }

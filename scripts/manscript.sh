@@ -1,8 +1,9 @@
 #!/bin/bash
 out=$(sudo batctl o | wc -l)
 ifBatExists=$(ip a show bat0 up | wc -l)
+force=$1
 echo "$ifBatExists"
-if [ "$ifBatExists" -gt 1 ] && [ "$out" -gt 2 ]; then
+if [ "$ifBatExists" -gt 1 ] && [ "$out" -gt 2 ] && [ -z "$force" ]; then
     echo "Already setup batman!"
 else
     echo "starting batman"
@@ -36,6 +37,6 @@ else
     echo "Sleeping for 5 seconds"
     sleep 5s
 
-    sudo ifconfig bat0 172.27.0.3/16
+    sudo ifconfig bat0 172.27.0.4/16
     echo "Done!!!"
 fi
