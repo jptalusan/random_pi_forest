@@ -5,7 +5,6 @@ myMosqConcrete::myMosqConcrete(const char* id, const char* _topic, const char* h
     std::cout << "Master node mqtt setup" << std::endl;
     this->c = c;
     t = Utils::Timer();
-    t.start();
     firstAckReceived = false;
     hasFailed = false;
     stopThreadFlag = false;
@@ -60,13 +59,35 @@ void myMosqConcrete::reset() {
     stopThreadFlag = false;
     firstAckReceivedNodes = false;
     this->isProcessing = false;
+    totalNumberOfLines = 0;
 }
 
 //Will look through all available nodes and only use the number stated by the configs
 //Remaining nodes will be reserves in case the other nodes fail
 std::vector<NodeClass> myMosqConcrete::generateNodeAndDataList() {
     std::cout << "Trying to identify reserves and used nodes..." << std::endl;
-    std::cout << Utils::Command::exec("rm data* RTs_Forest*") << std::endl;
+    std::cout << Utils::Command::exec("rm data* RTs_Forest* *.sample *.remainder") << std::endl;
+
+    //TODO: Must find replacement to perl script that is C++ native
+    if (totalNumberOfLines == 0) {
+        unsigned int number_of_lines = 0;
+        FILE *infile = fopen("cleaned.csv", "r");
+        int ch;
+
+        while (EOF != (ch=getc(infile)))
+            if ('\n' == ch)
+                ++number_of_lines;
+
+        totalNumberOfLines = number_of_lines;
+    }
+
+    int splitCount = totalNumberOfLines / c.numberOfRuns;
+    //TODO: hard coded cleaned.csv name
+    std::stringstream ss;
+    ss << "perl ./sample_size.pl cleaned.csv ";
+    ss << splitCount;
+    std::cout << ss.str() << std::endl;
+    std::cout << Utils::Command::exec(ss.str().c_str()) << std::endl;
     std::cout << "trainingDataFileName: " << c.trainingDataFileName << std::endl;
     std::vector<std::string> data = readFileToBuffer(c.trainingDataFileName);
 
@@ -153,12 +174,24 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
 
     std::cout << "t: " << topic << ", msg: " << forPrint << std::endl;
     if (topic.find("master/start/flask") != std::string::npos) {
+        //Create array
+        reset();
+        t.start();
+        accuracy.clear();
         sendSlavesQuery("start");
         return true;
     } else if (topic.find("query/flask") != std::string::npos) {
         std::string topic("flask/query/" + c.nodeName);
         updateFlask(topic, this->isProcessing ? "busy" : "available");
-    } 
+    } else if (topic.find("config/flask") != std::string::npos) {
+        std::unique_ptr<Utils::Json> json(new Utils::Json());
+        this->c = json->parseJsonFile("configs.json");
+    } else if (topic.find("master/config/get") != std::string::npos) {
+        std::string jsonStr = Utils::Json::convertJsonToString("configs.json");
+        std::string topic = "flask/master/config";
+        std::cout << jsonStr << std::endl;
+        send_message(topic.c_str(), jsonStr.c_str());
+    }
 
     std::string node("node");
     if (topic.find(node) != std::string::npos) { //All messages from slave nodes
@@ -224,8 +257,6 @@ bool myMosqConcrete::receive_message(const struct mosquitto_message* message) {
             for (auto nc : this->nodeClassList) {
                 std::cout << "node: " << nc.nodeNumber << ", file: " << nc.dataTextfileName << std::endl;
             }
-
-
         } else if (topic.find("ack/node") != std::string::npos) { //Receive ack messages to count and call callback after timeout
             //TODO: Just list all available, even reserves and store that information into struct with datatext name and node name (list
             //OR: just move the sending of data.txt from main to here, easier)
@@ -325,8 +356,8 @@ void myMosqConcrete::distributedTest() {
     p->setClassColumn(c.classificationColumn);
     // std::cout << "trainingDataFileName: " << reservedForValidation << std::endl;
     // std::vector<RTs::Sample> samples = p->readCSVToSamples(reservedForValidation);
-    std::cout << "trainingDataFileName: " << c.trainingDataFileName << std::endl;
-    std::vector<RTs::Sample> samples = p->readCSVToSamples(c.trainingDataFileName);
+    std::cout << "validationDataFileName: " << c.validationDataFileName << std::endl;
+    std::vector<RTs::Sample> samples = p->readCSVToSamples(c.validationDataFileName);
 
     //Too many loops for testing
     //Need to change checkScores func to just accept the samples vector (too large? const)
@@ -347,13 +378,27 @@ void myMosqConcrete::distributedTest() {
     }
 
     Utils::TallyScores *ts = new Utils::TallyScores();
-    ts->checkScores(correctLabel, scoreVectors);
+    float _accuracy = ts->checkScores(correctLabel, scoreVectors);
     delete ts;
+    this->accuracy.push_back(_accuracy);
     //Clear all variables? even for reserves?
-    reset();
     this->isProcessing = false;
     updateFlask("flask/query/" + c.nodeName, "available");
-    t.stop();
+
+    if (accuracy.size() < (unsigned)c.numberOfRuns) {
+        reset();
+        sendSlavesQuery("start");
+    } else {
+        int index = 1;
+        std::for_each(accuracy.begin(), accuracy.end(), [&index](float f) {
+            std::cout << "Run " << index << ":" << f << std::endl;
+            ++index;
+        });
+        float ave = (std::accumulate(accuracy.begin(), accuracy.end(), 0.0))/(float)accuracy.size();
+        std::cout << "Average of " << c.numberOfRuns << " runs: " << ave << std::endl;
+
+        t.stop();
+    }
 }
 
 int myMosqConcrete::getClassNumberFromHistogram(int numberOfClasses, const float* histogram) {

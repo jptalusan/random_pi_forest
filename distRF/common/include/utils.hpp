@@ -55,6 +55,8 @@ namespace Utils {
         std::string masterNode;
         int classificationColumn;
         std::string trainingDataFileName;
+        std::string validationDataFileName;
+        int numberOfRuns;
 
         void setNodeList(const std::vector<std::string>& nodeList) {
             this->nodeList = nodeList;
@@ -111,6 +113,14 @@ namespace Utils {
         void setTrainingDataFileName(std::string trainingDataFileName) {
             this->trainingDataFileName = trainingDataFileName;
         }
+
+        void setValidationDataFileName(std::string validationDataFileName) {
+            this->validationDataFileName = validationDataFileName;
+        }
+
+        void setNumberOfRuns(int numberOfRuns) {
+            this->numberOfRuns = numberOfRuns;
+        }
     };
     
     class Json {
@@ -157,6 +167,14 @@ namespace Utils {
             if(j["classificationColumn"] != nullptr) {
                 c.setClassificationColumn(j["classificationColumn"]);
             }
+
+            if(j["validationDataFileName"] != nullptr) {
+                c.setValidationDataFileName(j["validationDataFileName"]);
+            }
+
+            if(j["numberOfRuns"] != nullptr) {
+                c.setNumberOfRuns(j["numberOfRuns"]);
+            }
             return c;
         }
 
@@ -165,7 +183,7 @@ namespace Utils {
             json << "{";
             int kvPairsSize = kvPairs.size();
             int index = 1;
-            std::cout << kvPairsSize << std::endl;
+            // std::cout << kvPairsSize << std::endl;
             for (auto p : kvPairs) {
                 json << "\"";
                 json << p.first;
@@ -180,7 +198,14 @@ namespace Utils {
 
             json << "}";
             std::cout << "json: " << json.str() << std::endl;
-        return json.str();
+            return json.str();
+        }
+
+        static std::string convertJsonToString(std::string filename) {
+            std::ifstream t(filename);
+            std::string str((std::istreambuf_iterator<char>(t)),
+                 std::istreambuf_iterator<char>());
+            return str;
         }
     };
 
@@ -333,7 +358,7 @@ namespace Utils {
         }
 
     public:
-        void checkScores(std::vector<int> correctLabels, std::vector<std::vector<int>> classifications) {
+        float checkScores(std::vector<int> correctLabels, std::vector<std::vector<int>> classifications) {
             std::vector<int> consolidated = consolidateScores(classifications);
             int i = 0;
             int score = 0;
@@ -353,6 +378,7 @@ namespace Utils {
             std::cout << std::endl << "Score: " << score << " / " << consolidated.size() << std::endl;
             float f = (float)score / (float)consolidated.size();
             std::cout << f << std::endl;
+            return f;
         }
     };
 

@@ -124,7 +124,7 @@ bool Forest::Learn(
 		samples_pointers[s] = &samples[s];
 	}
 
-	//決定木の数繰り返す＝分散処理する数
+	//Number of decision trees Repeat = Number of distributed processing
 	for(int t=0; t<numTrees; ++t){
 		// 決定木を新たに作成
 		// std::cout << "	12_決定木を新たに作成する" << std::endl;

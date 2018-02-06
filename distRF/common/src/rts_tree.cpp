@@ -109,6 +109,7 @@ Node *Tree::build(const int maxDepth,
 	// std::cout << "		143_分岐につかう特徴量の次元をランダムに決定" << std::endl;
 	for(int ft=0; ft<featureTrials; ++ft){
 
+		// What if it tries to use everything?
 		// Randomly determine the dimensions of features used for branching
 		int rand_feature_id = (int)(rand() % feature_dim);
 

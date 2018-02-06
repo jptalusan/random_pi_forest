@@ -1,15 +1,21 @@
 {
-    "nodeList": ["163.221.68.211", "163.221.68.245", "163.221.68.246"],
-    "numClass": 9,
-    "numTrees": 5,
-    "maxDepth": 10,
-    "featureTrials": 50,
-    "thresholdTrials": 5,
-    "dataPerTree": 0.25,
-    "nodeName": "master0",
-    "mqttBroker": "163.221.68.234",
-    "topic": "master/+/#",
-    "numberOfNodes": 2,
-    "setClassificationColumn": 1,
-    "trainingDataFileName": "cleaned.csv"
+  "nodeList": [
+    "163.221.68.211",
+    "163.221.68.245",
+    "163.221.68.246"
+  ],
+  "numClass": 9,
+  "numTrees": 5,
+  "maxDepth": 10,
+  "featureTrials": 50,
+  "thresholdTrials": 5,
+  "dataPerTree": 0.25,
+  "nodeName": "master0",
+  "mqttBroker": "163.221.68.234",
+  "topic": "master/+/#",
+  "numberOfNodes": 4,
+  "classificationColumn": 1,
+  "trainingDataFileName": "cleaned.csv.remainder",
+  "validationDataFileName": "cleaned.csv.sample",
+  "numberOfRuns": 10
 }

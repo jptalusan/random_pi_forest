@@ -30,8 +30,8 @@ int main(){
     // mymosq->addHandler(testCallback);
 
     //TODO: maybe change the topic for master?
-    // std::string lastWillTopic("master/lastWill/" + c.nodeName);
-    // mymosq->setupLastWill(lastWillTopic, "I am master and i am gone, goodbye.");
+    std::string lastWillTopic("master/lastWill/" + c.nodeName);
+    mymosq->setupLastWill(lastWillTopic, "I am master and i am gone, goodbye.");
     mymosq->connect();
 
     // mymosq->sendSlavesQuery("start");

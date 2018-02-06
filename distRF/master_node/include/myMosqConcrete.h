@@ -50,6 +50,8 @@ class myMosqConcrete : public myMosq {
     void reset();
     std::vector<NodeClass> generateNodeAndDataList();
     void updateFlask(std::string topic, std::string availability);
+    std::vector<float> accuracy;
+    int totalNumberOfLines;
 };
 
 
