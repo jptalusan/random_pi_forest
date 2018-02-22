@@ -81,15 +81,22 @@ std::vector<NodeClass> myMosqConcrete::generateNodeAndDataList() {
         totalNumberOfLines = number_of_lines;
     }
 
-    int splitCount = totalNumberOfLines / c.numberOfRuns;
-    //TODO: hard coded cleaned.csv name
-    std::stringstream ss;
-    ss << "perl ./sample_size.pl cleaned.csv ";
-    ss << splitCount;
-    std::cout << ss.str() << std::endl;
-    std::cout << Utils::Command::exec(ss.str().c_str()) << std::endl;
-    std::cout << "trainingDataFileName: " << c.trainingDataFileName << std::endl;
-    std::vector<std::string> data = readFileToBuffer(c.trainingDataFileName);
+    // If numberOfRuns is just 1, no cross validation
+    std::vector<std::string> data;
+    if (c.numberOfRuns != 1) {
+        int splitCount = totalNumberOfLines / c.numberOfRuns;
+        std::stringstream ss;
+        ss << "perl ./sample_size.pl cleaned.csv ";
+        ss << splitCount;
+        std::cout << ss.str() << std::endl;
+        std::cout << Utils::Command::exec(ss.str().c_str()) << std::endl;
+        std::cout << "trainingDataFileName: " << c.trainingDataFileName << std::endl;
+        data = readFileToBuffer(c.trainingDataFileName);
+    } else {
+        size_t lastindex = c.trainingDataFileName.find_last_of("."); 
+        std::string rawname = c.trainingDataFileName.substr(0, lastindex);
+        data = readFileToBuffer(rawname);
+    }
 
     std::vector<int> v(data.size());
     std::iota(v.begin(), v.end(), 0);
@@ -385,6 +392,14 @@ void myMosqConcrete::distributedTest() {
     this->isProcessing = false;
     updateFlask("flask/query/" + c.nodeName, "available");
 
+    std::vector<std::pair<std::string, std::string>> kv;
+    kv.push_back(std::make_pair("currRunTime", t.getElapsedTime()));
+    kv.push_back(std::make_pair("accuracy", std::to_string(accuracy.back())));
+    std::string json = Utils::Json::createJsonFile(kv);
+    std::string topic("flask/master/update");
+    this->send_message(topic.c_str(), json.c_str());
+
+
     if (accuracy.size() < (unsigned)c.numberOfRuns) {
         reset();
         sendSlavesQuery("start");
@@ -423,12 +438,12 @@ void myMosqConcrete::addHandler(std::function<void(int)> callback) {
 
 void myMosqConcrete::updateFlask(std::string topic, std::string availability) {
     std::vector<std::pair<std::string, std::string>> kv;
-        std::string ipaddress = Utils::Command::exec("hostname -I");
-        kv.push_back(std::make_pair("ipaddress", ipaddress.substr(0, ipaddress.find(" "))));
-        kv.push_back(std::make_pair("status", availability));
-        kv.push_back(std::make_pair("datafile", c.trainingDataFileName));
-        kv.push_back(std::make_pair("nodename", c.nodeName));
-        std::string json = Utils::Json::createJsonFile(kv);
-        
-        this->send_message(topic.c_str(), json.c_str());
+    std::string ipaddress = Utils::Command::exec("hostname -I");
+    kv.push_back(std::make_pair("ipaddress", ipaddress.substr(0, ipaddress.find(" "))));
+    kv.push_back(std::make_pair("status", availability));
+    kv.push_back(std::make_pair("datafile", c.trainingDataFileName));
+    kv.push_back(std::make_pair("nodename", c.nodeName));
+    std::string json = Utils::Json::createJsonFile(kv);
+    
+    this->send_message(topic.c_str(), json.c_str());
 }

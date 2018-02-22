@@ -13,9 +13,9 @@
   "nodeName": "master0",
   "mqttBroker": "163.221.68.234",
   "topic": "master/+/#",
-  "numberOfNodes": 4,
+  "numberOfNodes": 3,
   "classificationColumn": 1,
   "trainingDataFileName": "cleaned.csv.remainder",
   "validationDataFileName": "cleaned.csv.sample",
-  "numberOfRuns": 10
+  "numberOfRuns": 1
 }

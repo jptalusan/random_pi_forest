@@ -386,9 +386,12 @@ namespace Utils {
     private:
         std::chrono::high_resolution_clock::time_point startTime;
         std::chrono::high_resolution_clock::time_point endTime;
+        std::chrono::high_resolution_clock::time_point lapTime;
+
     public:
         void start() {
             startTime = std::chrono::high_resolution_clock::now();
+            lapTime = startTime;
             // std::cout << startTime.str() << std::endl;
         }
 
@@ -397,6 +400,13 @@ namespace Utils {
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
             // std::cout << endTime.str() << std::endl;
             std::cout << "Total time spent (ms): " << duration << std::endl;
+        }
+
+        std::string getElapsedTime() {
+            std::chrono::high_resolution_clock::time_point currTime = std::chrono::high_resolution_clock::now();
+            auto lap = std::chrono::duration_cast<std::chrono::milliseconds>(currTime - lapTime).count();
+            lapTime = currTime;
+            return std::to_string(lap);
         }
     };
 

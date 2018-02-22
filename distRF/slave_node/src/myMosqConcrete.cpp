@@ -100,7 +100,7 @@ void myMosqConcrete::initiateTraining(const std::string pchar) {
     this->send_message(topic.c_str(), buffer.c_str());
 
     this->isProcessing = false;
-    updateFlask("flask/query/" + c.nodeName, "availabile");
+    updateFlask("flask/query/" + c.nodeName, "available");
 }
 
 //TODO: make arguments adjustable via argv and transfer code to pi to start distribution
