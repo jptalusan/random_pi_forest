@@ -17,5 +17,5 @@
   "classificationColumn": 1,
   "trainingDataFileName": "cleaned.csv.remainder",
   "validationDataFileName": "cleaned.csv.sample",
-  "numberOfRuns": 1
+  "numberOfRuns": 2
 }

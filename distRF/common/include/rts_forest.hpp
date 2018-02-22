@@ -50,6 +50,9 @@ public:
 		return trees;
 	}
 
+	std::vector<int> RunThroughAllTrees(const Feature &feature_vec);
+
+	bool ConcatenateTrees(std::vector<Tree *> trees);
 };
 
 } // namespace RTs

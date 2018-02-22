@@ -52,6 +52,7 @@ class myMosqConcrete : public myMosq {
     void updateFlask(std::string topic, std::string availability);
     std::vector<float> accuracy;
     int totalNumberOfLines;
+    float tallyScore(std::vector<int> labels, std::vector<int> predictions);
 };
 
 

@@ -93,9 +93,17 @@ std::vector<NodeClass> myMosqConcrete::generateNodeAndDataList() {
         std::cout << "trainingDataFileName: " << c.trainingDataFileName << std::endl;
         data = readFileToBuffer(c.trainingDataFileName);
     } else {
-        size_t lastindex = c.trainingDataFileName.find_last_of("."); 
-        std::string rawname = c.trainingDataFileName.substr(0, lastindex);
-        data = readFileToBuffer(rawname);
+        // size_t lastindex = c.trainingDataFileName.find_last_of("."); 
+        // std::string rawname = c.trainingDataFileName.substr(0, lastindex);
+        // data = readFileToBuffer(rawname);
+        int splitCount = totalNumberOfLines / 30;
+        std::stringstream ss;
+        ss << "perl ./sample_size.pl cleaned.csv ";
+        ss << splitCount;
+        std::cout << ss.str() << std::endl;
+        std::cout << Utils::Command::exec(ss.str().c_str()) << std::endl;
+        std::cout << "trainingDataFileName: " << c.trainingDataFileName << std::endl;
+        data = readFileToBuffer(c.trainingDataFileName);
     }
 
     std::vector<int> v(data.size());
@@ -361,8 +369,6 @@ void myMosqConcrete::distributedTest() {
     Utils::Parser *p = new Utils::Parser();
     std::cout << "classificationColumn: " << c.classificationColumn << std::endl;
     p->setClassColumn(c.classificationColumn);
-    // std::cout << "trainingDataFileName: " << reservedForValidation << std::endl;
-    // std::vector<RTs::Sample> samples = p->readCSVToSamples(reservedForValidation);
     std::cout << "validationDataFileName: " << c.validationDataFileName << std::endl;
     std::vector<RTs::Sample> samples = p->readCSVToSamples(c.validationDataFileName);
 
@@ -372,23 +378,30 @@ void myMosqConcrete::distributedTest() {
         correctLabel.push_back(s.label);
     });
 
-    //TODO: Break here if fail? then restart?
-    for (unsigned int i = 0; i < samples.size(); ++i) {
-        std::vector<int> nodeListSamples;
-        scoreVectors.push_back(nodeListSamples);
-        for (unsigned int j = 0; j < publishedNodes.size(); ++j) {
-            RTs::Feature f = samples[i].feature_vec;
-            const float* histo = randomForests[j].EstimateClass(f);
-            //TODO: 10 is hard coded number of classes + 1
-            scoreVectors[i].push_back(getClassNumberFromHistogram(10, histo));
-        }
+    //Try to merge all trees
+    RTs::Forest main_forest = randomForests[0];
+    for (unsigned int i = 1; i < randomForests.size(); ++i) {
+        main_forest.ConcatenateTrees(randomForests[i].getTrees());
     }
 
-    Utils::TallyScores *ts = new Utils::TallyScores();
-    float _accuracy = ts->checkScores(correctLabel, scoreVectors);
-    delete ts;
-    this->accuracy.push_back(_accuracy);
-    //Clear all variables? even for reserves?
+    std::cout << "Number of trees: " << main_forest.getTrees().size() << std::endl;
+
+    std::vector<int> score_temp;
+    //TODO: Break here if fail? then restart?
+    for (unsigned int i = 0; i < samples.size(); ++i) {
+        RTs::Feature f = samples[i].feature_vec;
+        std::vector<int> tree_score = main_forest.RunThroughAllTrees(f);
+        std::vector<int>::iterator it;
+        it = std::max_element(tree_score.begin(), tree_score.end());
+        int classId = std::distance(tree_score.begin(), it);
+        score_temp.push_back(classId);
+    }
+
+    float score = tallyScore(correctLabel, score_temp);
+    std::cout << "New code score: " << score << std::endl;
+
+    this->accuracy.push_back(score);
+    // //Clear all variables? even for reserves?
     this->isProcessing = false;
     updateFlask("flask/query/" + c.nodeName, "available");
 
@@ -398,7 +411,6 @@ void myMosqConcrete::distributedTest() {
     std::string json = Utils::Json::createJsonFile(kv);
     std::string topic("flask/master/update");
     this->send_message(topic.c_str(), json.c_str());
-
 
     if (accuracy.size() < (unsigned)c.numberOfRuns) {
         reset();
@@ -414,6 +426,22 @@ void myMosqConcrete::distributedTest() {
 
         t.stop();
     }
+}
+
+float myMosqConcrete::tallyScore(std::vector<int> labels, std::vector<int> predictions) {
+    if (labels.size() != predictions.size())
+        return -1.0;
+
+    // find the first mismatch
+    auto p = std::mismatch(labels.begin(), labels.end(), predictions.begin());
+    int mismatch = 0; 
+    while(p.first != labels.end()) {
+        ++mismatch;
+        p = std::mismatch(++p.first, labels.end(), ++p.second);
+    }
+    float accuracy = (labels.size() - mismatch) / (float)labels.size();
+    std::cout << (labels.size() - mismatch) << "/" << (float)labels.size() << std::endl;
+    return accuracy;
 }
 
 int myMosqConcrete::getClassNumberFromHistogram(int numberOfClasses, const float* histogram) {

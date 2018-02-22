@@ -238,6 +238,39 @@ const float* Forest::EstimateClass(const Feature &feature_vec){
 	return histogram;
 }
 
+std::vector<int> Forest::RunThroughAllTrees(const Feature &feature_vec) {
+	if (trees.empty()) {
+		return {};
+	}
+
+	std::vector<int> votes(numClass, 0);
+	int index = 0;
+	for (auto tree : trees) {
+		// std::cout << "tree: " << index << std::endl;
+		const float* tree_histogram = tree->Traversal(feature_vec);
+		if (tree_histogram == nullptr) {
+			return {};
+		}
+		std::vector<float> tree_vector_hist {tree_histogram, tree_histogram + numClass};
+		std::vector<float>::iterator it;
+		it = std::max_element(tree_vector_hist.begin(), tree_vector_hist.end());
+		int classId = std::distance(tree_vector_hist.begin(), it);
+		votes.at(classId) += 1;
+		++index;
+	}
+
+	// for (auto v : votes) {
+	// 	std::cout << v;
+	// }
+	// std::cout << std::endl;
+	return votes;
+}
+
+bool Forest::ConcatenateTrees(std::vector<Tree *> tree) {
+	trees.insert(trees.end(), tree.begin(), tree.end());
+	return true;
+}
+
 /*!
 @brief Forest 全体を保存する:3
 @param[in] filename ファイル名
