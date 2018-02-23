@@ -390,11 +390,21 @@ void myMosqConcrete::distributedTest() {
     //TODO: Break here if fail? then restart?
     for (unsigned int i = 0; i < samples.size(); ++i) {
         RTs::Feature f = samples[i].feature_vec;
-        std::vector<int> tree_score = main_forest.RunThroughAllTrees(f);
-        std::vector<int>::iterator it;
-        it = std::max_element(tree_score.begin(), tree_score.end());
-        int classId = std::distance(tree_score.begin(), it);
+        
+        // Classify using distribution of leaf nodes
+        const float* histo = main_forest.EstimateClass(f);
+        std::vector<float> tree_vector_hist {histo, histo + c.numClass};
+        std::vector<float>::iterator it;
+        it = std::max_element(tree_vector_hist.begin(), tree_vector_hist.end());
+        int classId = std::distance(tree_vector_hist.begin(), it);
         score_temp.push_back(classId);
+
+        // Classify using majority votes
+        // std::vector<int> tree_score = main_forest.RunThroughAllTrees(f);
+        // std::vector<int>::iterator it;
+        // it = std::max_element(tree_score.begin(), tree_score.end());
+        // int classId = std::distance(tree_score.begin(), it);
+        // score_temp.push_back(classId);
     }
 
     float score = tallyScore(correctLabel, score_temp);
